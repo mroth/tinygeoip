@@ -3,6 +3,7 @@ package main
 import (
 	"net"
 	"reflect"
+	"sync"
 	"testing"
 )
 
@@ -83,6 +84,32 @@ func TestDBLookup(t *testing.T) {
 	}
 }
 
+func TestDBLookupFast(t *testing.T) {
+	db, err := NewLookupDB(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	pool := &sync.Pool{
+		New: func() interface{} {
+			return new(LookupResult)
+		},
+	}
+
+	for _, tc := range testCases {
+		res := pool.Get().(*LookupResult)
+		err := db.LookupFast(tc.ip, res)
+		if err != nil {
+			t.Error(err)
+		}
+		if !reflect.DeepEqual(&tc.expected, res) {
+			t.Errorf("testing: %v, want: %+v, got: %+v", tc.ip, tc.expected, res)
+		}
+		pool.Put(res)
+	}
+}
+
 func BenchmarkDBLookup(b *testing.B) {
 	db, err := NewLookupDB(dbPath)
 	if err != nil {
@@ -93,5 +120,26 @@ func BenchmarkDBLookup(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		db.Lookup(testCases[0].ip)
+	}
+}
+
+func BenchmarkDBLookupFast(b *testing.B) {
+	db, err := NewLookupDB(dbPath)
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer db.Close()
+
+	pool := &sync.Pool{
+		New: func() interface{} {
+			return new(LookupResult)
+		},
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		res := pool.Get().(*LookupResult)
+		db.LookupFast(testCases[0].ip, res)
+		pool.Put(res)
 	}
 }

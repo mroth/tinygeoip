@@ -72,3 +72,15 @@ func (l *LookupDB) Lookup(ip net.IP) (*LookupResult, error) {
 	}
 	return &r, nil
 }
+
+// LookupFast is a version of Lookup() that avoids memory allocations by taking
+// a pointer to a pre-allocated LookupResult to decode into.
+//
+// You probably don't need to use this unless you are tuning for ludicrous speed
+// in combination with a sync.Pool, etc.
+//
+// TODO: benchmark this in more detail to see if saving that one allocation
+// really makes a big enough difference, if not consider removal.
+func (l *LookupDB) LookupFast(ip net.IP, r *LookupResult) error {
+	return l.reader.Lookup(ip, r)
+}
