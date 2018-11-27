@@ -1,19 +1,15 @@
 package main
 
 import (
-	"net"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/oschwald/maxminddb-golang"
 	"github.com/pmylund/go-cache"
 )
 
-const dbPath = "GeoLite2-City.mmdb"
-
 func TestLookupByParam(t *testing.T) {
-	db, err := maxminddb.Open(dbPath)
+	db, err := NewLookupDB(dbPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,7 +27,7 @@ func TestLookupByParam(t *testing.T) {
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
-	handler := LookupHandler{DB: db}
+	handler := HTTPHandler{DB: db}
 
 	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
 	// directly and pass in our Request and ResponseRecorder.
@@ -61,31 +57,8 @@ func TestLookupByParam(t *testing.T) {
 // }
 // func (n NullResponseWriter) WriteHeader(statusCode int) {}
 
-func BenchmarkLookup(b *testing.B) {
-	db, err := maxminddb.Open(dbPath)
-	if err != nil {
-		b.Fatal(err)
-	}
-	defer db.Close()
-
-	ip := net.ParseIP("71.246.111.168")
-	if ip == nil {
-		b.Fatal("failure parsing benchmark ip?!")
-	}
-
-	handler := LookupHandler{
-		DB:       db,
-		MemCache: nil,
-	}
-
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		_, _ = handler.Lookup(ip)
-	}
-}
-
-func BenchmarkRequest(b *testing.B) {
-	db, err := maxminddb.Open(dbPath)
+func BenchmarkHTTPRequest(b *testing.B) {
+	db, err := NewLookupDB(dbPath)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -93,7 +66,7 @@ func BenchmarkRequest(b *testing.B) {
 
 	req, _ := http.NewRequest("GET", "/8.8.8.8", nil)
 	rr := httptest.NewRecorder() //NullResponseWriter{}
-	handler := LookupHandler{
+	handler := HTTPHandler{
 		DB:       db,
 		MemCache: nil,
 	}
@@ -104,8 +77,8 @@ func BenchmarkRequest(b *testing.B) {
 	}
 }
 
-func BenchmarkRequestWithCache(b *testing.B) {
-	db, err := maxminddb.Open(dbPath)
+func BenchmarkHTTPRequestWithCache(b *testing.B) {
+	db, err := NewLookupDB(dbPath)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -113,7 +86,7 @@ func BenchmarkRequestWithCache(b *testing.B) {
 
 	req, _ := http.NewRequest("GET", "/8.8.8.8", nil)
 	rr := httptest.NewRecorder()
-	handler := LookupHandler{
+	handler := HTTPHandler{
 		DB:       db,
 		MemCache: cache.New(DefaultCacheExpiration, DefaultCacheCleanup),
 	}

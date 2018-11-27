@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"runtime"
 
-	"github.com/oschwald/maxminddb-golang"
 	"github.com/pmylund/go-cache"
 )
 
@@ -20,14 +19,14 @@ func main() {
 	runtime.GOMAXPROCS(*threads)
 
 	// open database
-	db, err := maxminddb.Open(*dbPath)
+	db, err := NewLookupDB(*dbPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
 	// create a handler for location lookups
-	lh := &LookupHandler{
+	lh := &HTTPHandler{
 		DB:       db,
 		MemCache: cache.New(DefaultCacheExpiration, DefaultCacheCleanup),
 	}
@@ -39,7 +38,7 @@ func main() {
 		// TODO: IP parse error
 	}
 
-	loc, err := lh.Lookup(ip)
+	loc, err := lh.DB.Lookup(ip)
 	if err != nil {
 		log.Fatal(err)
 	}
