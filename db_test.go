@@ -7,7 +7,9 @@ import (
 	"testing"
 )
 
-const dbPath = "GeoLite2-City.mmdb"
+const dbPath = "data/GeoLite2-City.mmdb" // TODO: replace with testdb
+// TODO: for benchmark purposes, once testdb is implemented, see if we
+// can also require the full db when -long or something is passed.
 
 // Fun fact? Easter egg? Amusing to me only? But these test IPs are the
 // locations I was working on writing this code.
