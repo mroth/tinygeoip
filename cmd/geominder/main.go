@@ -1,4 +1,4 @@
-package main // import "github.com/mroth/geominder"
+package main
 
 import (
 	"flag"
@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"runtime"
 
+	"github.com/mroth/geominder"
 	"github.com/pmylund/go-cache"
 )
 
@@ -19,24 +20,20 @@ func main() {
 	runtime.GOMAXPROCS(*threads)
 
 	// open database
-	db, err := NewLookupDB(*dbPath)
+	db, err := geominder.NewLookupDB(*dbPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
 	// create a handler for location lookups
-	lh := &HTTPHandler{
+	lh := &geominder.HTTPHandler{
 		DB:       db,
-		MemCache: cache.New(DefaultCacheExpiration, DefaultCacheCleanup),
+		MemCache: cache.New(geominder.DefaultCacheExpiration, geominder.DefaultCacheCleanup),
 	}
 
 	log.Println("pretending we got a request")
-	// parse IP out of request
 	ip := net.ParseIP("71.246.111.168")
-	if ip == nil {
-		// TODO: IP parse error
-	}
 
 	loc, err := lh.DB.Lookup(ip)
 	if err != nil {
