@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/pmylund/go-cache"
@@ -41,8 +40,13 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// attempt to parse IP from query
 	ipText := r.URL.Query().Get("ip")
+
+	// nice error message when missing data
 	if ipText == "" {
-		ipText = strings.Trim(r.URL.Path, "/")
+		w.WriteHeader(http.StatusBadRequest)
+		const parseIPError = `{"error": "missing IP query parameter, try ?ip=foo"}`
+		w.Write([]byte(parseIPError))
+		return
 	}
 
 	// check for cached result
@@ -55,22 +59,28 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// attempt to parse the provided IP address
 	ip := net.ParseIP(ipText)
 	if ip == nil {
-		// returnError = "unable to decode ip"
 		w.WriteHeader(http.StatusBadRequest)
-		// TODO: error text
+		const parseIPError = `{"error": "could not parse invalid IP address"}`
+		w.Write([]byte(parseIPError))
 		return
 	}
 
+	// do a DB lookup on the IP address
 	loc, err := hh.DB.Lookup(ip)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		// TODO: error text
+		w.Write([]byte(err.Error())) // TODO: error text
 		return
 	}
 
-	b, err := json.Marshal(loc)
+	// rerturn results as JSON + update in cache if cache enabled
+	//
+	// (yes, we're swallowing a potential marshall error here, but we already
+	// know loc should not be nil since we checked for err on the previous case)
+	b, _ := json.Marshal(loc)
 	w.Write(b)
 	if hh.MemCache != nil {
 		hh.MemCache.Set(ipText, b, cache.DefaultExpiration)
