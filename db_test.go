@@ -125,7 +125,7 @@ func TestDBLookup(t *testing.T) {
 	}
 }
 
-func TestDBLookupFast(t *testing.T) {
+func TestDBFastLookup(t *testing.T) {
 	db, err := NewLookupDB(*dbPath)
 	if err != nil {
 		t.Fatal(err)
@@ -140,7 +140,7 @@ func TestDBLookupFast(t *testing.T) {
 
 	for _, tc := range testCases {
 		res := pool.Get().(*LookupResult)
-		err := db.LookupFast(tc.ip, res)
+		err := db.FastLookup(tc.ip, res)
 		if err != nil {
 			t.Error(err)
 		}
@@ -164,7 +164,7 @@ func BenchmarkDBLookup(b *testing.B) {
 	}
 }
 
-func BenchmarkDBLookupFast(b *testing.B) {
+func BenchmarkDBFastLookup(b *testing.B) {
 	db, err := NewLookupDB(*dbPath)
 	if err != nil {
 		b.Fatal(err)
@@ -180,7 +180,7 @@ func BenchmarkDBLookupFast(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		res := pool.Get().(*LookupResult)
-		db.LookupFast(testCases[0].ip, res)
+		db.FastLookup(testCases[0].ip, res)
 		pool.Put(res)
 	}
 }
