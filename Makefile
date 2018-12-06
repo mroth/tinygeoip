@@ -1,5 +1,6 @@
-REALDATA_URI  = http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz
-REALDATA_PATH = data/GeoLite2-City.mmdb
+REALDATA_URI  = https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz
+REALDATA_DIR  = data
+REALDATA_PATH = $(REALDATA_DIR)/GeoLite2-City.mmdb
 PACKAGES = .# TODO: replace with ./... once in multiple
 BINDIR = bin
 
@@ -7,7 +8,6 @@ BINDIR = bin
 
 default: $(BINDIR)/geominder
 
-# TODO binary
 $(BINDIR):
 	mkdir -p $(BINDIR)
 
@@ -31,11 +31,10 @@ benchreal: realdata
 	go test -run=Bench -bench=. -benchmem $(PACKAGES) -args -db=$(REALDATA_PATH)
 
 realdata: $(REALDATA_PATH)
-
 $(REALDATA_PATH): 
-	# TODO: implement me!
-	# curl $(REALDATA_URI) | tar -xzv $(REALDATA_PATH)
+	mkdir -p $(REALDATA_DIR)
+	curl $(REALDATA_URI) | tar -xzv --strip-components=1 -C $(REALDATA_DIR)
 
 clobber:
-	rm -r $(BINDIR)
-	# rm $(REALDATA_PATH)
+	rm -rf $(BINDIR)
+	rm -rf $(REALDATA_DIR)
