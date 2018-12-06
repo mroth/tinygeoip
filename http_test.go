@@ -18,11 +18,18 @@ func TestHTTPLookup(t *testing.T) {
 		expectedBody   string
 	}{
 		{
-			name:           "happy",
-			path:           "/?ip=8.8.8.8", // TODO: replace with testdb version
+			name:           "happy IPv4",
+			path:           "/?ip=89.160.20.112",
 			expectedStatus: http.StatusOK,
 			expectedType:   "application/json",
-			expectedBody:   `{"country":{"iso_code":"US"},"location":{"lat":37.751,"long":-97.822,"accuracy":1000}}`,
+			expectedBody:   `{"country":{"iso_code":"SE"},"location":{"lat":58.4167,"long":15.6167,"accuracy":76}}`,
+		},
+		{
+			name:           "happy IPv6",
+			path:           "/?ip=2001:218:85a3:0000:0000:8a2e:0370:7334",
+			expectedStatus: http.StatusOK,
+			expectedType:   "application/json",
+			expectedBody:   `{"country":{"iso_code":"JP"},"location":{"lat":35.68536,"long":139.75309,"accuracy":100}}`,
 		},
 		{
 			name:           "request empty",
@@ -54,7 +61,7 @@ func TestHTTPLookup(t *testing.T) {
 		},
 	}
 
-	db, err := NewLookupDB(dbPath)
+	db, err := NewLookupDB(*dbPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -114,13 +121,13 @@ func TestHTTPLookup(t *testing.T) {
 // func (n NullResponseWriter) WriteHeader(statusCode int) {}
 
 func BenchmarkHTTPRequest(b *testing.B) {
-	db, err := NewLookupDB(dbPath)
+	db, err := NewLookupDB(*dbPath)
 	if err != nil {
 		b.Fatal(err)
 	}
 	defer db.Close()
 
-	req, _ := http.NewRequest("GET", "/?ip=8.8.8.8", nil)
+	req, _ := http.NewRequest("GET", "/?ip=89.160.20.112", nil)
 	rr := httptest.NewRecorder() //NullResponseWriter{}
 	handler := HTTPHandler{
 		DB:       db,
@@ -134,13 +141,13 @@ func BenchmarkHTTPRequest(b *testing.B) {
 }
 
 func BenchmarkHTTPRequestWithCache(b *testing.B) {
-	db, err := NewLookupDB(dbPath)
+	db, err := NewLookupDB(*dbPath)
 	if err != nil {
 		b.Fatal(err)
 	}
 	defer db.Close()
 
-	req, _ := http.NewRequest("GET", "/?ip=8.8.8.8", nil)
+	req, _ := http.NewRequest("GET", "/?ip=89.160.20.112", nil)
 	rr := httptest.NewRecorder()
 	handler := HTTPHandler{
 		DB:       db,
