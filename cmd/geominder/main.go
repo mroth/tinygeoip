@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"runtime"
@@ -11,6 +12,7 @@ import (
 
 func main() {
 	var dbPath = flag.String("db", "data/GeoLite2-City.mmdb", "Path of MaxMind GeoIP2/GeoLite2 database")
+	var port = flag.Int("port", 9000, "Port to listen for connections on")
 	var threads = flag.Int("threads", runtime.NumCPU(), "Number of threads to use, otherwise number of detected cores")
 	//var originPolicy = flag.String("origin", "*", `Value sent in the 'Access-Control-Allow-Origin' header. Set to "" to disable.`)
 
@@ -27,7 +29,8 @@ func main() {
 
 
 	http.Handle("/", lh)
-	if err := http.ListenAndServe(":6666", nil); err != nil {
+	log.Println("Listening for connections on port", *port)
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil); err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
 }
