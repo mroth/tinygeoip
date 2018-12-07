@@ -15,6 +15,7 @@ func main() {
 	var port = flag.Int("port", 9000, "Port to listen for connections on")
 	var threads = flag.Int("threads", runtime.NumCPU(), "Number of threads to use, otherwise number of detected cores")
 	//var originPolicy = flag.String("origin", "*", `Value sent in the 'Access-Control-Allow-Origin' header. Set to "" to disable.`)
+	// var verbose = flag.Bool("verbose", false, "log all requests")
 
 	flag.Parse()
 	runtime.GOMAXPROCS(*threads)
@@ -27,6 +28,8 @@ func main() {
 
 	lh := geominder.NewHTTPHandler(db)
 
+	// Logging of connections is disabled
+	// Logging of connections is enabled, this may severely impact performance under extremely high utilization
 
 	http.Handle("/", lh)
 	log.Println("Listening for connections on port", *port)
