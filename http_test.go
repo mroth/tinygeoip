@@ -143,6 +143,30 @@ func TestHTTPLookup(t *testing.T) {
 	}
 }
 
+func TestOriginPolicy(t *testing.T) {
+	db, err := NewLookupDB(*dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	var originCases = []string{"*", "http://foo.example", ""}
+	for _, op := range originCases {
+		handler := NewHTTPHandler(db).SetOriginPolicy(op)
+		req, _ := http.NewRequest(http.MethodGet, "/", nil)
+		rr := httptest.NewRecorder()
+		handler.ServeHTTP(rr, req)
+
+		_, present := (rr.Header())["Access-Control-Allow-Origin"]
+		if op == "" && present {
+			t.Errorf("Expected no CORS header but one was present")
+		} else if val := rr.Header().Get("Access-Control-Allow-Origin"); val != op {
+			t.Errorf("Unexpected CORS header, want %v got %v", op, val)
+		}
+	}
+
+}
+
 // // Below is a leftover test struct I was using instead of httptest.ResponseRecorder,
 // // thinking that it would reduce perf overhead in benchmarking, but it didnt seem to
 // // make a big difference, so leaving out for now but preserving for future thoughts.

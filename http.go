@@ -16,10 +16,16 @@ const DefaultCacheExpiration = 5 * time.Minute
 // DefaultCacheCleanup is the default time duration until cache cleanup
 const DefaultCacheCleanup = 10 * time.Minute
 
+// DefaultOriginPolicy is the default for `Access-Control-Allow-Origin` header
+const DefaultOriginPolicy = "*"
+
 // HTTPHandler implements a standard http.Handler interface for accessing
 // a LookupDB, and provides in-memory caching for results.
 type HTTPHandler struct {
-	DB           *LookupDB
+	DB *LookupDB
+	// Value for `Access-Control-Allow-Origin` header.
+	//
+	// Header will be omitted if set to zero value.
 	OriginPolicy string
 	MemCache     *cache.Cache
 	// TODO: before v1.0, the memcache should potentially be privatized so that
@@ -28,23 +34,40 @@ type HTTPHandler struct {
 
 // NewHTTPHandler creates a HTTPHandler for requests againt the given LookupDB
 //
-// By default caching is enabled.
+// By default caching is enabled, and DefaultOriginPolicy is applied.
 func NewHTTPHandler(db *LookupDB) *HTTPHandler {
-	return (&HTTPHandler{DB: db}).EnableCache()
+	hh := HTTPHandler{
+		DB:           db,
+		OriginPolicy: DefaultOriginPolicy,
+	}
+	hh.EnableCache()
+	return &hh
 }
 
 // EnableCache activates the memory cache for a HTTPHandler with default values
 //
-// If you wish to provide custom values, you'll need to manipulate the struct
-// values directly.
+// If you wish to provide custom cache values, you'll need to manipulate the
+// struct values directly for now.
+//
+// Returns pointer to the HTTPHandler to enable chaining in builder pattern.
 func (hh *HTTPHandler) EnableCache() *HTTPHandler {
 	hh.MemCache = cache.New(DefaultCacheExpiration, DefaultCacheCleanup)
 	return hh
 }
 
 // DisableCache deactivates the memory cache for a HTTPHandler
+//
+// Returns pointer to the HTTPHandler to enable chaining in builder pattern.
 func (hh *HTTPHandler) DisableCache() *HTTPHandler {
 	hh.MemCache = nil
+	return hh
+}
+
+// SetOriginPolicy sets value for `Access-Control-Allow-Origin` header
+//
+// Returns pointer to the HTTPHandler to enable chaining in builder pattern.
+func (hh *HTTPHandler) SetOriginPolicy(origins string) *HTTPHandler {
+	hh.OriginPolicy = origins
 	return hh
 }
 
