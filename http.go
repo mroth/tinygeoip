@@ -2,6 +2,7 @@ package geominder
 
 import (
 	"encoding/json"
+	"fmt"
 	"net"
 	"net/http"
 	"time"
@@ -72,7 +73,7 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	loc, err := hh.DB.Lookup(ip)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error())) // TODO: error text
+		w.Write([]byte(fmt.Sprintf(`{"error": "%v"}`, err.Error())))
 		return
 	}
 

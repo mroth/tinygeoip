@@ -1,6 +1,7 @@
 package geominder
 
 import (
+	"fmt"
 	"net"
 
 	"github.com/oschwald/maxminddb-golang"
@@ -62,15 +63,12 @@ func (l *LookupDB) Close() error {
 	return l.reader.Close()
 }
 
-// Lookup returns the results for a given IP address, or nil and an error
+// Lookup returns the results for a given IP address, or an error
 // if results can not be obtained for some reason.
 func (l *LookupDB) Lookup(ip net.IP) (*LookupResult, error) {
 	var r LookupResult
-	err := l.reader.Lookup(ip, &r)
-	if err != nil {
-		return nil, err
-	}
-	return &r, nil
+	err := l.lookup(ip, &r)
+	return &r, err
 }
 
 // FastLookup is a version of Lookup() that avoids memory allocations by taking
@@ -82,5 +80,22 @@ func (l *LookupDB) Lookup(ip net.IP) (*LookupResult, error) {
 // TODO: benchmark this in more detail to see if saving that one allocation
 // really makes a big enough difference, if not consider removal.
 func (l *LookupDB) FastLookup(ip net.IP, r *LookupResult) error {
-	return l.reader.Lookup(ip, r)
+	return l.lookup(ip, r)
+}
+
+// oschwald/maxminddb-golang does not generate an error on a failed lookup,
+// see: https://github.com/oschwald/maxminddb-golang/issues/41
+//
+// to work around this, we don't use their Lookup(), but rather check
+// LookupOffset() first, and throw our own error if nothing was found, before
+// using the offset for a manual Decode().
+func (l *LookupDB) lookup(ip net.IP, r *LookupResult) error {
+	offset, err := l.reader.LookupOffset(ip)
+	if err != nil {
+		return err
+	}
+	if offset == maxminddb.NotFound {
+		return fmt.Errorf("no match for %v found in database", ip)
+	}
+	return l.reader.Decode(offset, r)
 }

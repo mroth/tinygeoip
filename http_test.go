@@ -54,10 +54,10 @@ func TestHTTPLookup(t *testing.T) {
 		},
 		{
 			name:           "IP not found",
-			path:           "/?ip=127.0.0.1",     // TODO: what ip to check to generate???
-			expectedStatus: http.StatusNoContent, // TODO: what is the best status here?
+			path:           "/?ip=127.0.0.1",
+			expectedStatus: http.StatusInternalServerError,
 			expectedType:   "application/json",
-			expectedBody:   `{"error": "TODO - LETS SEE WHAT WE GET BACK FROM MAXMIND"}`,
+			expectedBody:   `{"error": "no match for 127.0.0.1 found in database"}`,
 		},
 	}
 
@@ -95,7 +95,7 @@ func TestHTTPLookup(t *testing.T) {
 
 			// check the response body is valid json
 			if bytes := rr.Body.Bytes(); !json.Valid(bytes) {
-				t.Errorf("json resopnse did not validate! %v", bytes)
+				t.Errorf("json response did not validate! %v", bytes)
 			}
 
 			// check the response body is what we expect
