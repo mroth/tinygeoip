@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"log"
-	"net"
 	"net/http"
 	"runtime"
 
@@ -32,14 +31,7 @@ func main() {
 		MemCache: cache.New(geominder.DefaultCacheExpiration, geominder.DefaultCacheCleanup),
 	}
 
-	log.Println("pretending we got a request")
-	ip := net.ParseIP("71.246.111.168")
 
-	loc, err := lh.DB.Lookup(ip)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("%+v", loc)
 
 	http.Handle("/", lh)
 	if err := http.ListenAndServe(":6666", nil); err != nil {
