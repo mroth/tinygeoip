@@ -18,20 +18,26 @@ type LookupDB struct {
 
 // LookupResult is a minimal set of location information that is queried for and
 // returned from our lookups.
-//
-// DEVS: For possible fields, see https://dev.maxmind.com/geoip/geoip2/web-services/
-// TODO: maybe make same as https://github.com/bluesmoon/node-geoip?
 type LookupResult struct {
 	Country  country  `maxminddb:"country" json:"country"`
 	Location location `maxminddb:"location" json:"location"`
 }
 
+// DEVS: For possible fields, see https://dev.maxmind.com/geoip/geoip2/web-services/
+// TODO: maybe make same as https://github.com/bluesmoon/node-geoip?
+
 type country struct {
+	// A two-character ISO 3166-1 country code for the country associated with
+	// the IP address.
 	ISOCode string `maxminddb:"iso_code" json:"iso_code"`
 }
 
 type location struct {
-	Latitude  float64 `maxminddb:"latitude" json:"lat"`
+	// The approximate latitude of the postal code, city, subdivision or country
+	// associated with the IP address.
+	Latitude float64 `maxminddb:"latitude" json:"lat"`
+	// The approximate longitude of the postal code, city, subdivision or
+	// country associated with the IP address.
 	Longitude float64 `maxminddb:"longitude" json:"long"`
 	// The approximate accuracy radius, in kilometers, around the
 	// latitude and longitude for the geographical entity (country,
@@ -47,7 +53,7 @@ type location struct {
 
 // NewLookupDB open a new DB reader.
 //
-// dbPath must be the path to a valid maxmindDB file with at least city level precision.
+// dbPath must be the path to a valid maxmindDB file containing city precision.
 func NewLookupDB(dbPath string) (*LookupDB, error) {
 	db, err := maxminddb.Open(dbPath)
 	if err != nil {
@@ -63,8 +69,8 @@ func (l *LookupDB) Close() error {
 	return l.reader.Close()
 }
 
-// Lookup returns the results for a given IP address, or an error
-// if results can not be obtained for some reason.
+// Lookup returns the results for a given IP address, or an error if results can
+// not be obtained for some reason.
 func (l *LookupDB) Lookup(ip net.IP) (*LookupResult, error) {
 	var r LookupResult
 	err := l.lookup(ip, &r)
