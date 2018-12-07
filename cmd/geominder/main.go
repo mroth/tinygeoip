@@ -7,7 +7,6 @@ import (
 	"runtime"
 
 	"github.com/mroth/geominder"
-	"github.com/pmylund/go-cache"
 )
 
 func main() {
@@ -18,19 +17,13 @@ func main() {
 	flag.Parse()
 	runtime.GOMAXPROCS(*threads)
 
-	// open database
 	db, err := geominder.NewLookupDB(*dbPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	// create a handler for location lookups
-	lh := &geominder.HTTPHandler{
-		DB:       db,
-		MemCache: cache.New(geominder.DefaultCacheExpiration, geominder.DefaultCacheCleanup),
-	}
-
+	lh := geominder.NewHTTPHandler(db)
 
 
 	http.Handle("/", lh)
