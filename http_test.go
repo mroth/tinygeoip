@@ -161,7 +161,7 @@ func BenchmarkHTTPRequest(b *testing.B) {
 	}
 	defer db.Close()
 
-	req, _ := http.NewRequest("GET", "/?ip=89.160.20.112", nil)
+	req, _ := http.NewRequest(http.MethodGet, testIPv4Path1, nil)
 	rr := httptest.NewRecorder() //NullResponseWriter{}
 	handler := NewHTTPHandler(db).DisableCache()
 
@@ -178,7 +178,7 @@ func BenchmarkHTTPRequestWithCache(b *testing.B) {
 	}
 	defer db.Close()
 
-	req, _ := http.NewRequest("GET", "/?ip=89.160.20.112", nil)
+	req, _ := http.NewRequest(http.MethodGet, testIPv4Path1, nil)
 	rr := httptest.NewRecorder()
 	handler := NewHTTPHandler(db).EnableCache()
 
