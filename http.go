@@ -22,12 +22,30 @@ type HTTPHandler struct {
 	DB           *LookupDB
 	OriginPolicy string
 	MemCache     *cache.Cache
+	// TODO: before v1.0, the memcache should potentially be privatized so that
+	// API stability can be more easily preserved if it is switched out.
 }
 
-func NewHTTPHandler(db *LookupDB) HTTPHandler {
-	return HTTPHandler{
-		DB: db,
-	}
+// NewHTTPHandler creates a HTTPHandler for requests againt the given LookupDB
+//
+// By default caching is enabled.
+func NewHTTPHandler(db *LookupDB) *HTTPHandler {
+	return (&HTTPHandler{DB: db}).EnableCache()
+}
+
+// EnableCache activates the memory cache for a HTTPHandler with default values
+//
+// If you wish to provide custom values, you'll need to manipulate the struct
+// values directly.
+func (hh *HTTPHandler) EnableCache() *HTTPHandler {
+	hh.MemCache = cache.New(DefaultCacheExpiration, DefaultCacheCleanup)
+	return hh
+}
+
+// DisableCache deactivates the memory cache for a HTTPHandler
+func (hh *HTTPHandler) DisableCache() *HTTPHandler {
+	hh.MemCache = nil
+	return hh
 }
 
 // ServeHTTP implements the http.Handler interface

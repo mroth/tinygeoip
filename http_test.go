@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/pmylund/go-cache"
 )
 
 const testIPv4Path1 = "/?ip=89.160.20.112"
@@ -92,11 +90,11 @@ func TestHTTPLookup(t *testing.T) {
 	defer db.Close()
 
 	// test both with a cache and without
-	rawHandler := HTTPHandler{DB: db, MemCache: nil}
-	cachedHandler := HTTPHandler{DB: db, MemCache: cache.New(DefaultCacheExpiration, DefaultCacheCleanup)}
+	rawHandler := NewHTTPHandler(db).DisableCache()
+	cachedHandler := NewHTTPHandler(db).EnableCache()
 	var handlerCases = []struct {
 		name    string
-		handler HTTPHandler
+		handler *HTTPHandler
 	}{
 		{name: "raw", handler: rawHandler},
 		{name: "cached", handler: cachedHandler},
@@ -165,10 +163,7 @@ func BenchmarkHTTPRequest(b *testing.B) {
 
 	req, _ := http.NewRequest("GET", "/?ip=89.160.20.112", nil)
 	rr := httptest.NewRecorder() //NullResponseWriter{}
-	handler := HTTPHandler{
-		DB:       db,
-		MemCache: nil,
-	}
+	handler := NewHTTPHandler(db).DisableCache()
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -185,10 +180,7 @@ func BenchmarkHTTPRequestWithCache(b *testing.B) {
 
 	req, _ := http.NewRequest("GET", "/?ip=89.160.20.112", nil)
 	rr := httptest.NewRecorder()
-	handler := HTTPHandler{
-		DB:       db,
-		MemCache: cache.New(DefaultCacheExpiration, DefaultCacheCleanup),
-	}
+	handler := NewHTTPHandler(db).EnableCache()
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
