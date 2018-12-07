@@ -65,7 +65,9 @@ func TestHTTPLookup(t *testing.T) {
 			path:           "/?ip=",
 			expectedStatus: http.StatusBadRequest,
 			expectedType:   "application/json",
-			expectedBody:   `{"error": "could not parse IP address"}`,
+			expectedBody:   `{"error": "missing IP query parameter, try ?ip=foo"}`,
+			// TODO: possibly better to do the below? hard with default req parse methods
+			// expectedBody:   `{"error": "could not parse IP address"}`,
 		},
 		{
 			name:           "IP malformed",
