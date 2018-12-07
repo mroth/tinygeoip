@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	var dbPath = flag.String("db", "GeoLite2-City.mmdb", "Path of MaxMind GeoIP2/GeoLite2 database")
+	var dbPath = flag.String("db", "data/GeoLite2-City.mmdb", "Path of MaxMind GeoIP2/GeoLite2 database")
 	var threads = flag.Int("threads", runtime.NumCPU(), "Number of threads to use, otherwise number of detected cores")
 	//var originPolicy = flag.String("origin", "*", `Value sent in the 'Access-Control-Allow-Origin' header. Set to "" to disable.`)
 
