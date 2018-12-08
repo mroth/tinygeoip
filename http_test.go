@@ -11,9 +11,9 @@ const testIPv4Path1 = "/?ip=89.160.20.112"
 const testIPv4Path2 = "/?ip=81.2.69.142"
 const testIPv6Path1 = "/?ip=2001:218:85a3:0000:0000:8a2e:0370:7334"
 
-const testIPv4Body1 = `{"country":{"iso_code":"SE"},"location":{"lat":58.4167,"long":15.6167,"accuracy":76}}`
-const testIPv4Body2 = `{"country":{"iso_code":"GB"},"location":{"lat":51.5142,"long":-0.0931,"accuracy":10}}`
-const testIPv6Body1 = `{"country":{"iso_code":"JP"},"location":{"lat":35.68536,"long":139.75309,"accuracy":100}}`
+const testIPv4Body1 = `{"country":{"iso_code":"SE"},"location":{"latitude":58.4167,"longitude":15.6167,"accuracy_radius":76}}`
+const testIPv4Body2 = `{"country":{"iso_code":"GB"},"location":{"latitude":51.5142,"longitude":-0.0931,"accuracy_radius":10}}`
+const testIPv6Body1 = `{"country":{"iso_code":"JP"},"location":{"latitude":35.68536,"longitude":139.75309,"accuracy_radius":100}}`
 
 func TestHTTPLookup(t *testing.T) {
 	var httpCases = []struct {
