@@ -67,10 +67,7 @@ var testCases = []struct {
 var benchIP = testCases[2].ip
 
 func TestDBLookup(t *testing.T) {
-	db, err := NewLookupDB(*dbPath)
-	if err != nil {
-		t.Fatal(err)
-	}
+	db := newTestDB(t)
 	defer db.Close()
 
 	for _, tc := range testCases {
@@ -85,10 +82,7 @@ func TestDBLookup(t *testing.T) {
 }
 
 func TestDBFastLookup(t *testing.T) {
-	db, err := NewLookupDB(*dbPath)
-	if err != nil {
-		t.Fatal(err)
-	}
+	db := newTestDB(t)
 	defer db.Close()
 
 	pool := &sync.Pool{
@@ -111,10 +105,7 @@ func TestDBFastLookup(t *testing.T) {
 }
 
 func BenchmarkDBLookup(b *testing.B) {
-	db, err := NewLookupDB(*dbPath)
-	if err != nil {
-		b.Fatal(err)
-	}
+	db := newTestDB(b)
 	defer db.Close()
 
 	b.ResetTimer()
@@ -124,10 +115,7 @@ func BenchmarkDBLookup(b *testing.B) {
 }
 
 func BenchmarkDBFastLookup(b *testing.B) {
-	db, err := NewLookupDB(*dbPath)
-	if err != nil {
-		b.Fatal(err)
-	}
+	db := newTestDB(b)
 	defer db.Close()
 
 	pool := &sync.Pool{
@@ -142,4 +130,19 @@ func BenchmarkDBFastLookup(b *testing.B) {
 		db.FastLookup(benchIP, res)
 		pool.Put(res)
 	}
+}
+
+// newTestDB calls NewLookupDB with the default test db (which can be overriden
+// in flags), or causes the originating test/benchmark to fail if it errors.
+//
+// literally the only reason this exists it to save us the err != nil check 3
+// lines of boilerplate visual noise on every single test initialization.
+//
+// worth it? IMHO heck yes!
+func newTestDB(tb testing.TB) *LookupDB {
+	db, err := NewLookupDB(*dbPath)
+	if err != nil {
+		tb.Fatal(err)
+	}
+	return db
 }

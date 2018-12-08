@@ -97,10 +97,7 @@ func TestHTTPLookup(t *testing.T) {
 		},
 	}
 
-	db, err := NewLookupDB(*dbPath)
-	if err != nil {
-		t.Fatal(err)
-	}
+	db := newTestDB(t)
 	defer db.Close()
 
 	// test both with a cache and without
@@ -156,10 +153,7 @@ func TestHTTPLookup(t *testing.T) {
 }
 
 func TestOriginPolicy(t *testing.T) {
-	db, err := NewLookupDB(*dbPath)
-	if err != nil {
-		t.Fatal(err)
-	}
+	db := newTestDB(t)
 	defer db.Close()
 
 	var originCases = []string{"*", "http://foo.example", ""}
@@ -193,10 +187,7 @@ func TestOriginPolicy(t *testing.T) {
 // func (n NullResponseWriter) WriteHeader(statusCode int) {}
 
 func BenchmarkHTTPRequest(b *testing.B) {
-	db, err := NewLookupDB(*dbPath)
-	if err != nil {
-		b.Fatal(err)
-	}
+	db := newTestDB(b)
 	defer db.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, testIPv4Path1, nil)
@@ -210,10 +201,7 @@ func BenchmarkHTTPRequest(b *testing.B) {
 }
 
 func BenchmarkHTTPRequestWithCache(b *testing.B) {
-	db, err := NewLookupDB(*dbPath)
-	if err != nil {
-		b.Fatal(err)
-	}
+	db := newTestDB(b)
 	defer db.Close()
 
 	req, _ := http.NewRequest(http.MethodGet, testIPv4Path1, nil)
@@ -227,10 +215,7 @@ func BenchmarkHTTPRequestWithCache(b *testing.B) {
 }
 
 func BenchmarkHTTPRequestPar(b *testing.B) {
-	db, err := NewLookupDB(*dbPath)
-	if err != nil {
-		b.Fatal(err)
-	}
+	db := newTestDB(b)
 	defer db.Close()
 	handler := NewHTTPHandler(db).DisableCache()
 
@@ -244,10 +229,7 @@ func BenchmarkHTTPRequestPar(b *testing.B) {
 }
 
 func BenchmarkHTTPRequestParWithCache(b *testing.B) {
-	db, err := NewLookupDB(*dbPath)
-	if err != nil {
-		b.Fatal(err)
-	}
+	db := newTestDB(b)
 	defer db.Close()
 	handler := NewHTTPHandler(db).EnableCache()
 
