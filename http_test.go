@@ -190,9 +190,9 @@ func BenchmarkHTTPRequest(b *testing.B) {
 	db := newTestDB(b)
 	defer db.Close()
 
-	req, _ := http.NewRequest(http.MethodGet, testIPv4Path1, nil)
-	rr := httptest.NewRecorder() //NullResponseWriter{}
 	handler := NewHTTPHandler(db).DisableCache()
+	req, _ := http.NewRequest(http.MethodGet, testIPv4Path1, nil)
+	rr := httptest.NewRecorder()
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -204,9 +204,9 @@ func BenchmarkHTTPRequestWithCache(b *testing.B) {
 	db := newTestDB(b)
 	defer db.Close()
 
+	handler := NewHTTPHandler(db).EnableCache()
 	req, _ := http.NewRequest(http.MethodGet, testIPv4Path1, nil)
 	rr := httptest.NewRecorder()
-	handler := NewHTTPHandler(db).EnableCache()
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -217,6 +217,7 @@ func BenchmarkHTTPRequestWithCache(b *testing.B) {
 func BenchmarkHTTPRequestPar(b *testing.B) {
 	db := newTestDB(b)
 	defer db.Close()
+
 	handler := NewHTTPHandler(db).DisableCache()
 
 	b.RunParallel(func(pb *testing.PB) {
@@ -231,6 +232,7 @@ func BenchmarkHTTPRequestPar(b *testing.B) {
 func BenchmarkHTTPRequestParWithCache(b *testing.B) {
 	db := newTestDB(b)
 	defer db.Close()
+
 	handler := NewHTTPHandler(db).EnableCache()
 
 	b.RunParallel(func(pb *testing.PB) {
