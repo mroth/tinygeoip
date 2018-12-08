@@ -225,3 +225,37 @@ func BenchmarkHTTPRequestWithCache(b *testing.B) {
 		handler.ServeHTTP(rr, req)
 	}
 }
+
+func BenchmarkHTTPRequestPar(b *testing.B) {
+	db, err := NewLookupDB(*dbPath)
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer db.Close()
+	handler := NewHTTPHandler(db).DisableCache()
+
+	b.RunParallel(func(pb *testing.PB) {
+		req, _ := http.NewRequest(http.MethodGet, testIPv4Path1, nil)
+		rr := httptest.NewRecorder()
+		for pb.Next() {
+			handler.ServeHTTP(rr, req)
+		}
+	})
+}
+
+func BenchmarkHTTPRequestParWithCache(b *testing.B) {
+	db, err := NewLookupDB(*dbPath)
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer db.Close()
+	handler := NewHTTPHandler(db).EnableCache()
+
+	b.RunParallel(func(pb *testing.PB) {
+		req, _ := http.NewRequest(http.MethodGet, testIPv4Path1, nil)
+		rr := httptest.NewRecorder()
+		for pb.Next() {
+			handler.ServeHTTP(rr, req)
+		}
+	})
+}
