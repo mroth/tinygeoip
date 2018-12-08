@@ -61,59 +61,6 @@ var testCases = []struct {
 			Accuracy:  100,
 		},
 	}},
-
-	// Fun fact? Easter egg? Amusing to me only? But these test IPs are the
-	// locations I was working on writing this code....
-	// SO SAD, cant use my real ones anymore, figure out how to bring them back for nostalgia before deleting from code
-	// // my home fios connection at some point
-	// {net.ParseIP("71.246.111.168"), LookupResult{
-	// 	Country: country{
-	// 		ISOCode: "US",
-	// 	}, Location: location{
-	// 		Latitude:  40.7095,
-	// 		Longitude: -73.9563,
-	// 		Accuracy:  5,
-	// 	},
-	// }},
-	// // COALMINE coffee in Seoul
-	// {net.ParseIP("175.211.82.153"), LookupResult{
-	// 	Country: country{
-	// 		ISOCode: "KR",
-	// 	}, Location: location{
-	// 		Latitude:  37.5985,
-	// 		Longitude: 126.9783,
-	// 		Accuracy:  10,
-	// 	},
-	// }},
-	// // 히피 도끼 (고인물), 서울시 [커피 + 코딩]
-	// // Hippytokki, Goinmool, Seoul (Coffee + Code meetup)
-	// {net.ParseIP("121.131.15.99"), LookupResult{
-	// 	Country: country{
-	// 		ISOCode: "KR",
-	// 	}, Location: location{
-	// 		Latitude:  37.5333,
-	// 		Longitude: 126.95,
-	// 		Accuracy:  10,
-	// 	},
-	// }},
-	// {net.ParseIP("8.8.8.8"), LookupResult{
-	// 	Country: country{
-	// 		ISOCode: "US",
-	// 	}, Location: location{
-	// 		Latitude:  37.751,
-	// 		Longitude: -97.822,
-	// 		Accuracy:  1000,
-	// 	},
-	// }},
-	// {net.ParseIP("1.1.1.1"), LookupResult{
-	// 	Country: country{
-	// 		ISOCode: "AU",
-	// 	}, Location: location{
-	// 		Latitude:  -33.494,
-	// 		Longitude: 143.2104,
-	// 		Accuracy:  1000,
-	// 	},
-	// }},
 }
 
 // use a ipv6 ip for benchmarks since node geoip-lite thinks it's harder
