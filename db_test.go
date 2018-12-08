@@ -52,6 +52,15 @@ var testCases = []struct {
 			Accuracy:  100,
 		},
 	}},
+	{net.ParseIP("2001:220::1337"), LookupResult{
+		Country: country{
+			ISOCode: "KR",
+		}, Location: location{
+			Latitude:  37,
+			Longitude: 127.5,
+			Accuracy:  100,
+		},
+	}},
 
 	// Fun fact? Easter egg? Amusing to me only? But these test IPs are the
 	// locations I was working on writing this code....
