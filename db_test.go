@@ -116,6 +116,9 @@ var testCases = []struct {
 	// }},
 }
 
+// use a ipv6 ip for benchmarks since node geoip-lite thinks it's harder
+var benchIP = testCases[2].ip
+
 func TestDBLookup(t *testing.T) {
 	db, err := NewLookupDB(*dbPath)
 	if err != nil {
@@ -169,7 +172,7 @@ func BenchmarkDBLookup(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		db.Lookup(testCases[0].ip)
+		db.Lookup(benchIP)
 	}
 }
 
@@ -189,7 +192,7 @@ func BenchmarkDBFastLookup(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		res := pool.Get().(*LookupResult)
-		db.FastLookup(testCases[0].ip, res)
+		db.FastLookup(benchIP, res)
 		pool.Put(res)
 	}
 }
