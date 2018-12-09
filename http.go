@@ -7,14 +7,14 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/pmylund/go-cache"
+	"github.com/allegro/bigcache"
 )
 
 // DefaultCacheExpiration is the default time duration until a cache expiry
-const DefaultCacheExpiration = 5 * time.Minute
+const DefaultCacheExpiration = 24 * time.Hour
 
-// DefaultCacheCleanup is the default time duration until cache cleanup
-const DefaultCacheCleanup = 10 * time.Minute
+// DefaultMaxCacheSize is the default max memory used for caching responses (in MB)
+const DefaultMaxCacheSize = 512
 
 // DefaultOriginPolicy is the default for `Access-Control-Allow-Origin` header
 const DefaultOriginPolicy = "*"
@@ -22,14 +22,17 @@ const DefaultOriginPolicy = "*"
 // HTTPHandler implements a standard http.Handler interface for accessing
 // a LookupDB, and provides in-memory caching for results.
 type HTTPHandler struct {
+	// Handle to the LookupDB used for queries.
 	DB *LookupDB
 	// Value for `Access-Control-Allow-Origin` header.
 	//
 	// Header will be omitted if set to zero value.
 	OriginPolicy string
-	MemCache     *cache.Cache
+	// Backing cache used for in-memory caching of responses.
+	//
 	// TODO: before v1.0, the memcache should potentially be privatized so that
 	// API stability can be more easily preserved if it is switched out.
+	MemCache *bigcache.BigCache
 }
 
 // NewHTTPHandler creates a HTTPHandler for requests againt the given LookupDB
@@ -44,14 +47,27 @@ func NewHTTPHandler(db *LookupDB) *HTTPHandler {
 	return &hh
 }
 
-// EnableCache activates the memory cache for a HTTPHandler with default values
-//
-// If you wish to provide custom cache values, you'll need to manipulate the
-// struct values directly for now.
+// EnableCache activates the memory cache for a HTTPHandler with default values.
 //
 // Returns pointer to the HTTPHandler to enable chaining in builder pattern.
 func (hh *HTTPHandler) EnableCache() *HTTPHandler {
-	hh.MemCache = cache.New(DefaultCacheExpiration, DefaultCacheCleanup)
+	return hh._enableCache(DefaultMaxCacheSize)
+}
+
+// EnableCacheOfSize activates the memory cache for a HTTPHandler with max size.
+//
+// Returns pointer to the HTTPHandler to enable chaining in builder pattern.
+func (hh *HTTPHandler) EnableCacheOfSize(maxCacheSize uint) *HTTPHandler {
+	return hh._enableCache(maxCacheSize)
+}
+
+func (hh *HTTPHandler) _enableCache(maxCacheSize uint) *HTTPHandler {
+	config := bigcache.DefaultConfig(DefaultCacheExpiration)
+	config.HardMaxCacheSize = int(maxCacheSize)
+	// the swallowed error here is only generated when passing an invalid config
+	// to NewBigCache, e.g. number of shards is not a power of two, so should be
+	// "unreachable!"
+	hh.MemCache, _ = bigcache.NewBigCache(config)
 	return hh
 }
 
@@ -59,6 +75,10 @@ func (hh *HTTPHandler) EnableCache() *HTTPHandler {
 //
 // Returns pointer to the HTTPHandler to enable chaining in builder pattern.
 func (hh *HTTPHandler) DisableCache() *HTTPHandler {
+	if hh.MemCache != nil {
+		cacheHandle := hh.MemCache
+		defer cacheHandle.Close()
+	}
 	hh.MemCache = nil
 	return hh
 }
@@ -93,9 +113,8 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// check for cached result
 	if hh.MemCache != nil {
-		v, found := hh.MemCache.Get(ipText)
-		if found {
-			cached := v.([]byte)
+		cached, err := hh.MemCache.Get(ipText) // EntryNotFoundError on cache miss
+		if err == nil {
 			w.Write(cached)
 			return
 		}
@@ -125,6 +144,6 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	b, _ := json.Marshal(loc)
 	w.Write(b)
 	if hh.MemCache != nil {
-		hh.MemCache.Set(ipText, b, cache.DefaultExpiration)
+		hh.MemCache.Set(ipText, b)
 	}
 }
