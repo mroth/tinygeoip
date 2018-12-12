@@ -1,7 +1,6 @@
 package geominder
 
 import (
-	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
@@ -154,10 +153,7 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// rerturn results as JSON + update in cache if cache enabled
-	//
-	// (yes, we're swallowing a potential marshall error here, but we already
-	// know loc should not be nil since we checked for err on the previous case)
-	b, _ := json.Marshal(loc)
+	b := loc.FastJSON()
 	w.Write(b)
 	if hh.MemCache != nil {
 		hh.MemCache.Set(ipText, b)
