@@ -20,15 +20,25 @@ const DefaultMaxCacheSize = 512
 // DefaultOriginPolicy is the default for `Access-Control-Allow-Origin` header
 const DefaultOriginPolicy = "*"
 
+// contentType defines the content type used for all responses.
+//
+// This is effectively used as a constant. We define it as a package variable in
+// memory here because it allows a hacky but effective performance optimization
+// -- as the normal API for setting HTTP response headers via Set() in Go will
+// create a memory allocation for each header set on the request. However, if we
+// store this as a slice to begin with, we can set in the header map directly
+// and avoid the memory allocation.
+var contentType = []string{"application/json"}
+
 // HTTPHandler implements a standard http.Handler interface for accessing
 // a LookupDB, and provides in-memory caching for results.
 type HTTPHandler struct {
 	// Handle to the LookupDB used for queries.
 	DB *LookupDB
-	// Value for `Access-Control-Allow-Origin` header.
+	// Values for `Access-Control-Allow-Origin` header.
 	//
 	// Header will be omitted if set to zero value.
-	OriginPolicy string
+	OriginPolicy []string
 	// Backing cache used for in-memory caching of responses.
 	//
 	// TODO: before v1.0, the memcache should potentially be privatized so that
@@ -42,7 +52,7 @@ type HTTPHandler struct {
 func NewHTTPHandler(db *LookupDB) *HTTPHandler {
 	hh := HTTPHandler{
 		DB:           db,
-		OriginPolicy: DefaultOriginPolicy,
+		OriginPolicy: []string{DefaultOriginPolicy},
 	}
 	hh.EnableCache()
 	return &hh
@@ -84,21 +94,26 @@ func (hh *HTTPHandler) DisableCache() *HTTPHandler {
 	return hh
 }
 
-// SetOriginPolicy sets value for `Access-Control-Allow-Origin` header
+// SetOriginPolicy sets a single value for `Access-Control-Allow-Origin` header
 //
 // Returns pointer to the HTTPHandler to enable chaining in builder pattern.
-func (hh *HTTPHandler) SetOriginPolicy(origins string) *HTTPHandler {
-	hh.OriginPolicy = origins
+func (hh *HTTPHandler) SetOriginPolicy(origin string) *HTTPHandler {
+	if origin != "" {
+		hh.OriginPolicy = []string{origin}
+	} else {
+		hh.OriginPolicy = []string{}
+	}
 	return hh
 }
 
 // ServeHTTP implements the http.Handler interface
 func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Set headers
-	if hh.OriginPolicy != "" {
-		w.Header().Set("Access-Control-Allow-Origin", hh.OriginPolicy)
+	header := w.Header()
+	header["Content-Type"] = contentType
+	if len(hh.OriginPolicy) != 0 {
+		header["Access-Control-Allow-Origin"] = hh.OriginPolicy
 	}
-	w.Header().Set("Content-Type", "application/json")
 	// w.Header().Set("Last-Modified", serverStart)
 
 	// attempt to parse IP from query
