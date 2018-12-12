@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/allegro/bigcache"
@@ -101,7 +102,7 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// w.Header().Set("Last-Modified", serverStart)
 
 	// attempt to parse IP from query
-	ipText := r.URL.Query().Get("ip")
+	ipText := strings.TrimPrefix(r.URL.Path, "/")
 
 	// nice error message when missing data
 	if ipText == "" {

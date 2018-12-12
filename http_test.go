@@ -10,10 +10,10 @@ import (
 // these are currently somewhat derivative of the test case constants in
 // db_test, but they are intentionally hardcoded here as strings to keep
 // separation of methodologies.
-const testIPv4Path1 = "/?ip=89.160.20.112"
-const testIPv4Path2 = "/?ip=81.2.69.142"
-const testIPv6Path1 = "/?ip=2001:218:85a3:0000:0000:8a2e:0370:7334"
-const testIPv6Path2 = "/?ip=2001:220::1337"
+const testIPv4Path1 = "/89.160.20.112"
+const testIPv4Path2 = "/81.2.69.142"
+const testIPv6Path1 = "/2001:218:85a3:0000:0000:8a2e:0370:7334"
+const testIPv6Path2 = "/2001:220::1337"
 
 const testIPv4Body1 = `{"country":{"iso_code":"SE"},"location":{"latitude":58.4167,"longitude":15.6167,"accuracy_radius":76}}`
 const testIPv4Body2 = `{"country":{"iso_code":"GB"},"location":{"latitude":51.5142,"longitude":-0.0931,"accuracy_radius":10}}`
@@ -67,14 +67,14 @@ func TestHTTPLookup(t *testing.T) {
 		},
 		{
 			name:           "request empty",
-			path:           "/",
+			path:           "",
 			expectedStatus: http.StatusBadRequest,
 			expectedType:   "application/json",
 			expectedBody:   `{"error": "missing IP query parameter, try ?ip=foo"}`,
 		},
 		{
 			name:           "IP empty",
-			path:           "/?ip=",
+			path:           "/",
 			expectedStatus: http.StatusBadRequest,
 			expectedType:   "application/json",
 			expectedBody:   `{"error": "missing IP query parameter, try ?ip=foo"}`,
@@ -83,14 +83,14 @@ func TestHTTPLookup(t *testing.T) {
 		},
 		{
 			name:           "IP malformed",
-			path:           "/?ip=192.168.a.b.c",
+			path:           "/192.168.a.b.c",
 			expectedStatus: http.StatusBadRequest,
 			expectedType:   "application/json",
 			expectedBody:   `{"error": "could not parse invalid IP address"}`,
 		},
 		{
 			name:           "IP not found",
-			path:           "/?ip=127.0.0.1",
+			path:           "/127.0.0.1",
 			expectedStatus: http.StatusInternalServerError,
 			expectedType:   "application/json",
 			expectedBody:   `{"error": "no match for 127.0.0.1 found in database"}`,
@@ -137,7 +137,7 @@ func TestHTTPLookup(t *testing.T) {
 
 					// check the response body is valid json
 					if bytes := rr.Body.Bytes(); !json.Valid(bytes) {
-						t.Errorf("json response did not validate! %v", bytes)
+						t.Errorf("json response did not validate! %s", bytes)
 					}
 
 					// check the response body is what we expect
