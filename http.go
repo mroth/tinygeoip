@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/allegro/bigcache"
@@ -145,7 +146,8 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// do a DB lookup on the IP address
-	loc, err := hh.DB.Lookup(ip)
+	loc := locPool.Get().(*LookupResult)
+	err := hh.DB.FastLookup(ip, loc)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(fmt.Sprintf(`{"error": "%v"}`, err.Error())))
@@ -161,4 +163,13 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// only return to pool if we didnt cache
 		loc.PoolReturn(b)
 	}
+
+	locPool.Put(loc)
+}
+
+// pool for loc lookup responses
+var locPool = &sync.Pool{
+	New: func() interface{} {
+		return new(LookupResult)
+	},
 }
