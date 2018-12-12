@@ -153,9 +153,12 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// rerturn results as JSON + update in cache if cache enabled
-	b := loc.FastJSON()
-	w.Write(b)
+	b := loc.FasterJSON()
+	w.Write(*b)
 	if hh.MemCache != nil {
-		hh.MemCache.Set(ipText, b)
+		hh.MemCache.Set(ipText, *b)
+	} else {
+		// only return to pool if we didnt cache
+		loc.PoolReturn(b)
 	}
 }
