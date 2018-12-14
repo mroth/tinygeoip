@@ -4,10 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net/http"
 	"runtime"
 
 	"github.com/mroth/geominder"
+	"github.com/valyala/fasthttp"
 )
 
 func main() {
@@ -37,9 +37,12 @@ func main() {
 	// Logging of connections is disabled
 	// Logging of connections is enabled, this may severely impact performance under extremely high utilization
 
-	http.Handle("/", lh)
-	log.Println("Listening for connections on port", *port)
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil); err != nil {
+	// http.Handle("/", lh)
+	// log.Println("Listening for connections on port", *port)
+	// if err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil); err != nil {
+	// 	log.Fatal("ListenAndServe:", err)
+	// }
+	if err := fasthttp.ListenAndServe(fmt.Sprintf(":%d", *port), lh.HandleFastHTTP); err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
 }

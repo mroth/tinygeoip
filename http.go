@@ -1,6 +1,7 @@
 package geominder
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/allegro/bigcache"
+	"github.com/valyala/fasthttp"
 )
 
 // DefaultCacheExpiration is the default time duration until a cache expiry
@@ -144,6 +146,51 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// know loc should not be nil since we checked for err on the previous case)
 	b, _ := json.Marshal(loc)
 	w.Write(b)
+	if hh.MemCache != nil {
+		hh.MemCache.Set(ipText, b)
+	}
+}
+
+func (hh *HTTPHandler) HandleFastHTTP(ctx *fasthttp.RequestCtx) {
+	// Set headers
+	if hh.OriginPolicy != "" {
+		ctx.Response.Header.Set("Access-Control-Allow-Origin", hh.OriginPolicy)
+	}
+	ctx.SetContentType("application/json")
+	// w.Header().Set("Last-Modified", serverStart)
+
+	// attempt to parse IP from query
+	ipText := string(bytes.TrimPrefix(ctx.Path(), []byte("/")))
+
+	// TODO: missing param
+	// const parseIPError = `{"error": "missing IP query parameter, try ?ip=foo"}`
+
+	// check for cached result
+	if hh.MemCache != nil {
+		cached, err := hh.MemCache.Get(ipText) // EntryNotFoundError on cache miss
+		if err == nil {
+			ctx.SetBody(cached)
+			return
+		}
+	}
+
+	ip := net.ParseIP(ipText)
+	if ip == nil {
+		const parseIPError = `{"error": "could not parse invalid IP address"}`
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.SetBodyString(parseIPError)
+		return
+	}
+
+	loc, err := hh.DB.Lookup(ip)
+	if err != nil {
+		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+		ctx.SetBodyString(fmt.Sprintf(`{"error": "%v"}`, err.Error()))
+		return
+	}
+
+	b := loc.FastJSON()
+	ctx.SetBody(b)
 	if hh.MemCache != nil {
 		hh.MemCache.Set(ipText, b)
 	}
