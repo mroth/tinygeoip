@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/allegro/bigcache"
@@ -182,16 +183,27 @@ func (hh *HTTPHandler) HandleFastHTTP(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	loc, err := hh.DB.Lookup(ip)
+	loc := lookupResultPool.Get().(*LookupResult)
+	err := hh.DB.FastLookup(ip, loc)
 	if err != nil {
 		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
 		ctx.SetBodyString(fmt.Sprintf(`{"error": "%v"}`, err.Error()))
 		return
 	}
 
-	b := loc.FastJSON()
-	ctx.SetBody(b)
+	b := loc.FasterJSON()
+	ctx.SetBody(*b)
 	if hh.MemCache != nil {
-		hh.MemCache.Set(ipText, b)
+		hh.MemCache.Set(ipText, *b)
+	} else {
+		loc.PoolReturn(b)
 	}
+
+	lookupResultPool.Put(loc)
+}
+
+var lookupResultPool = &sync.Pool{
+	New: func() interface{} {
+		return new(LookupResult)
+	},
 }
