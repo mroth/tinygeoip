@@ -6,7 +6,7 @@ BINDIR = bin
 
 .PHONY: test bench benchreal realdata clobber
 
-default: $(BINDIR)/geominder
+default: $(BINDIR)/tinygeoip
 
 $(BINDIR):
 	mkdir -p $(BINDIR)

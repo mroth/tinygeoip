@@ -1,6 +1,6 @@
-# geominder WIP
+# tinygeoip WIP
 
-A extraordinarily fast HTTP based microservice (as well as native Go library)
+A small and fast HTTP based microservice (as well as native Go library)
 for extremely minimal geoip location lookups.
 
 ## CLI Tool / Microservice
@@ -14,7 +14,7 @@ TODO: note perf characteristics here
 ## Library
 
 A Go library is provided for utilizing within native projects. Additionally, a
-standard `http.Handler` interface is provided for bundling the microservice into
+standard `http.Handler` interface is provided for bundling the HTTP microservice into
 existing http Mux setups.
 
 For more information, see the GoDocs.

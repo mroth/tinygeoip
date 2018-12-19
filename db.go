@@ -1,4 +1,4 @@
-package geominder
+package tinygeoip
 
 import (
 	"fmt"

@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"runtime"
 
-	"github.com/mroth/geominder"
+	"github.com/mroth/tinygeoip"
 )
 
 func main() {
 	var dbPath = flag.String("db", "data/GeoLite2-City.mmdb", "Path of MaxMind GeoIP2/GeoLite2 database")
-	var originPolicy = flag.String("origin", geominder.DefaultOriginPolicy, `Value for 'Access-Control-Allow-Origin' header, set to "" to disable.`)
+	var originPolicy = flag.String("origin", tinygeoip.DefaultOriginPolicy, `Value for 'Access-Control-Allow-Origin' header, set to "" to disable.`)
 	var port = flag.Int("port", 9000, "Port to listen for connections on")
 	var threads = flag.Int("threads", runtime.NumCPU(), "Number of threads to use, otherwise number of detected cores")
 	// var verbose = flag.Bool("verbose", false, "log all requests")
@@ -20,13 +20,13 @@ func main() {
 	flag.Parse()
 	runtime.GOMAXPROCS(*threads)
 
-	db, err := geominder.NewLookupDB(*dbPath)
+	db, err := tinygeoip.NewLookupDB(*dbPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	lh := geominder.NewHTTPHandler(db).SetOriginPolicy(*originPolicy)
+	lh := tinygeoip.NewHTTPHandler(db).SetOriginPolicy(*originPolicy)
 
 	// Logging of connections is disabled
 	// Logging of connections is enabled, this may severely impact performance under extremely high utilization
