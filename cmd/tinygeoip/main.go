@@ -25,6 +25,10 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
+	log.Printf(
+		"Loaded database %s: %v nodes, built %v\n",
+		*dbPath, db.NodeCount(), db.BuildTime(),
+	)
 
 	lh := tinygeoip.NewHTTPHandler(db).SetOriginPolicy(*originPolicy)
 

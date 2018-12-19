@@ -3,6 +3,7 @@ package tinygeoip
 import (
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/oschwald/maxminddb-golang"
 )
@@ -69,4 +70,14 @@ func (l *LookupDB) lookup(ip net.IP, r *LookupResult) error {
 		return fmt.Errorf("no match for %v found in database", ip)
 	}
 	return l.reader.Decode(offset, r)
+}
+
+// NodeCount returns the number of nodes from the underlying database metadata
+func (l *LookupDB) NodeCount() uint {
+	return l.reader.Metadata.NodeCount
+}
+
+// BuildTime returns the timestamp that the underlying database was built at
+func (l *LookupDB) BuildTime() time.Time {
+	return time.Unix(int64(l.reader.Metadata.BuildEpoch), 0)
 }
