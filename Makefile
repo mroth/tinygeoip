@@ -1,7 +1,7 @@
 REALDATA_URI  = https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz
 REALDATA_DIR  = data
 REALDATA_PATH = $(REALDATA_DIR)/GeoLite2-City.mmdb
-PACKAGES = .# TODO: replace with ./... once in multiple
+PACKAGES = .
 BINDIR = bin
 
 .PHONY: test bench benchreal realdata clobber
@@ -11,7 +11,7 @@ default: $(BINDIR)/geominder
 $(BINDIR):
 	mkdir -p $(BINDIR)
 
-$(BINDIR)/%: cmd/%/*.go $(BINDIR)
+$(BINDIR)/%: cmd/%/*.go *.go $(BINDIR)
 	go build -o $(BINDIR)/$* $<
 
 # run standard go tests, with race detector active
