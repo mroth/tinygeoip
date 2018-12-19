@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"time"
 )
 
 // DefaultOriginPolicy is the default for `Access-Control-Allow-Origin` header
@@ -47,7 +48,6 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", hh.OriginPolicy)
 	}
 	w.Header().Set("Content-Type", "application/json")
-	// w.Header().Set("Last-Modified", serverStart)
 
 	// attempt to parse IP from query
 	ipText := strings.TrimPrefix(r.URL.Path, "/")
@@ -82,5 +82,14 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// (yes, we're swallowing a potential marshall error here, but we already
 	// know loc should not be nil since we checked for err on the previous case)
 	b, _ := json.Marshal(loc)
+	w.Header().Set("Last-Modified", serverStartTime)
 	w.Write(b)
 }
+
+// for the last-modified time to hint to HTTP caching of results, we just use
+// program launch time, as the values will never change outside of that. (we
+// don't use the underlying database build time because the program itself may
+// be modified.)
+var (
+	serverStartTime = time.Now().Format(http.TimeFormat)
+)

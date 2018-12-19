@@ -22,39 +22,44 @@ const testIPv6Body2 = `{"country":{"iso_code":"KR"},"location":{"latitude":37,"l
 
 func TestHTTPLookup(t *testing.T) {
 	var httpCases = []struct {
-		name           string
-		path           string
-		expectedStatus int
-		expectedType   string
-		expectedBody   string
+		name            string
+		path            string
+		expectedStatus  int
+		expectedType    string
+		expectedBody    string
+		hasLastModified bool
 	}{
 		{
-			name:           "happy1 IPv4",
-			path:           testIPv4Path1,
-			expectedStatus: http.StatusOK,
-			expectedType:   "application/json",
-			expectedBody:   testIPv4Body1,
+			name:            "happy1 IPv4",
+			path:            testIPv4Path1,
+			expectedStatus:  http.StatusOK,
+			expectedType:    "application/json",
+			expectedBody:    testIPv4Body1,
+			hasLastModified: true,
 		},
 		{
-			name:           "happy2 IPv4",
-			path:           testIPv4Path2,
-			expectedStatus: http.StatusOK,
-			expectedType:   "application/json",
-			expectedBody:   testIPv4Body2,
+			name:            "happy2 IPv4",
+			path:            testIPv4Path2,
+			expectedStatus:  http.StatusOK,
+			expectedType:    "application/json",
+			expectedBody:    testIPv4Body2,
+			hasLastModified: true,
 		},
 		{
-			name:           "happy1 IPv6",
-			path:           testIPv6Path1,
-			expectedStatus: http.StatusOK,
-			expectedType:   "application/json",
-			expectedBody:   testIPv6Body1,
+			name:            "happy1 IPv6",
+			path:            testIPv6Path1,
+			expectedStatus:  http.StatusOK,
+			expectedType:    "application/json",
+			expectedBody:    testIPv6Body1,
+			hasLastModified: true,
 		},
 		{
-			name:           "happy2 IPv6",
-			path:           testIPv6Path2,
-			expectedStatus: http.StatusOK,
-			expectedType:   "application/json",
-			expectedBody:   testIPv6Body2,
+			name:            "happy2 IPv6",
+			path:            testIPv6Path2,
+			expectedStatus:  http.StatusOK,
+			expectedType:    "application/json",
+			expectedBody:    testIPv6Body2,
+			hasLastModified: true,
 		},
 		{
 			// re-request the first valid path after other path requests, in
@@ -63,18 +68,20 @@ func TestHTTPLookup(t *testing.T) {
 			// UPDATE: we no longer have a cache, so this is redundant, but
 			// it's probably a good idea to leave it here anyhow in case someone
 			// adds something in the future that could cause a cache/ordering issue.
-			name:           "happy1 IPv4 repeated",
-			path:           testIPv4Path1,
-			expectedStatus: http.StatusOK,
-			expectedType:   "application/json",
-			expectedBody:   testIPv4Body1,
+			name:            "happy1 IPv4 repeated",
+			path:            testIPv4Path1,
+			expectedStatus:  http.StatusOK,
+			expectedType:    "application/json",
+			expectedBody:    testIPv4Body1,
+			hasLastModified: true,
 		},
 		{
-			name:           "request empty",
-			path:           "",
-			expectedStatus: http.StatusBadRequest,
-			expectedType:   "application/json",
-			expectedBody:   `{"error": "missing IP query parameter, try ?ip=foo"}`,
+			name:            "request empty",
+			path:            "",
+			expectedStatus:  http.StatusBadRequest,
+			expectedType:    "application/json",
+			expectedBody:    `{"error": "missing IP query parameter, try ?ip=foo"}`,
+			hasLastModified: false,
 		},
 		{
 			name:           "IP empty",
@@ -84,20 +91,23 @@ func TestHTTPLookup(t *testing.T) {
 			expectedBody:   `{"error": "missing IP query parameter, try ?ip=foo"}`,
 			// TODO: possibly better to do the below? hard with default req parse methods
 			// expectedBody:   `{"error": "could not parse IP address"}`,
+			hasLastModified: false,
 		},
 		{
-			name:           "IP malformed",
-			path:           "/192.168.a.b.c",
-			expectedStatus: http.StatusBadRequest,
-			expectedType:   "application/json",
-			expectedBody:   `{"error": "could not parse invalid IP address"}`,
+			name:            "IP malformed",
+			path:            "/192.168.a.b.c",
+			expectedStatus:  http.StatusBadRequest,
+			expectedType:    "application/json",
+			expectedBody:    `{"error": "could not parse invalid IP address"}`,
+			hasLastModified: false,
 		},
 		{
-			name:           "IP not found",
-			path:           "/127.0.0.1",
-			expectedStatus: http.StatusInternalServerError,
-			expectedType:   "application/json",
-			expectedBody:   `{"error": "no match for 127.0.0.1 found in database"}`,
+			name:            "IP not found",
+			path:            "/127.0.0.1",
+			expectedStatus:  http.StatusInternalServerError,
+			expectedType:    "application/json",
+			expectedBody:    `{"error": "no match for 127.0.0.1 found in database"}`,
+			hasLastModified: false,
 		},
 	}
 
@@ -132,6 +142,14 @@ func TestHTTPLookup(t *testing.T) {
 				t.Errorf("json response did not validate! %s", bytes)
 			}
 
+			// check if a last modified header is present when we expect it
+			// (and that it isn't when we dont), and that it's a valid format
+			_, ok := rr.Header()["Last-Modified"]
+			if ok != tc.hasLastModified {
+				t.Errorf("presence of last-modified header: want %v got %v",
+					tc.hasLastModified, ok)
+			}
+
 			// check the response body is what we expect
 			if body := rr.Body.String(); body != tc.expectedBody {
 				t.Errorf("handler returned unexpected body: got %v want %v",
@@ -159,7 +177,6 @@ func TestOriginPolicy(t *testing.T) {
 			t.Errorf("Unexpected CORS header, want %v got %v", op, val)
 		}
 	}
-
 }
 
 // // Below is a leftover test struct I was using instead of httptest.ResponseRecorder,
