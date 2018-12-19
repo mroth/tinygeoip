@@ -58,7 +58,11 @@ func TestHTTPLookup(t *testing.T) {
 		},
 		{
 			// re-request the first valid path after other path requests, in
-			// order to make certain about exercising cache validity
+			// order to make certain about exercising cache validity.
+			//
+			// UPDATE: we no longer have a cache, so this is redundant, but
+			// it's probably a good idea to leave it here anyhow in case someone
+			// adds something in the future that could cause a cache/ordering issue.
 			name:           "happy1 IPv4 repeated",
 			path:           testIPv4Path1,
 			expectedStatus: http.StatusOK,
@@ -100,54 +104,39 @@ func TestHTTPLookup(t *testing.T) {
 	db := newTestDB(t)
 	defer db.Close()
 
-	// test both with a cache and without
-	rawHandler := NewHTTPHandler(db).DisableCache()
-	cachedHandler := NewHTTPHandler(db).EnableCache()
-	var handlerCases = []struct {
-		name    string
-		handler *HTTPHandler
-	}{
-		{name: "raw", handler: rawHandler},
-		{name: "cached", handler: cachedHandler},
-	}
-	for _, hc := range handlerCases {
-		t.Run(hc.name, func(t *testing.T) {
-
-			for _, tc := range httpCases {
-				t.Run(tc.name, func(t *testing.T) {
-					req, err := http.NewRequest(http.MethodGet, tc.path, nil)
-					if err != nil {
-						t.Fatal(err)
-					}
-
-					rr := httptest.NewRecorder()
-					hc.handler.ServeHTTP(rr, req)
-
-					// check the status code is what we expect
-					if status := rr.Code; status != tc.expectedStatus {
-						t.Errorf("handler returned wrong status code: got %v want %v",
-							status, tc.expectedStatus)
-					}
-
-					// check content type is what we expect
-					if ct := rr.Header().Get("content-type"); ct != tc.expectedType {
-						t.Errorf("handler returned wrong content-type: got %v want %v",
-							ct, tc.expectedType)
-					}
-
-					// check the response body is valid json
-					if bytes := rr.Body.Bytes(); !json.Valid(bytes) {
-						t.Errorf("json response did not validate! %s", bytes)
-					}
-
-					// check the response body is what we expect
-					if body := rr.Body.String(); body != tc.expectedBody {
-						t.Errorf("handler returned unexpected body: got %v want %v",
-							body, tc.expectedBody)
-					}
-				})
+	handler := NewHTTPHandler(db)
+	for _, tc := range httpCases {
+		t.Run(tc.name, func(t *testing.T) {
+			req, err := http.NewRequest(http.MethodGet, tc.path, nil)
+			if err != nil {
+				t.Fatal(err)
 			}
 
+			rr := httptest.NewRecorder()
+			handler.ServeHTTP(rr, req)
+
+			// check the status code is what we expect
+			if status := rr.Code; status != tc.expectedStatus {
+				t.Errorf("handler returned wrong status code: got %v want %v",
+					status, tc.expectedStatus)
+			}
+
+			// check content type is what we expect
+			if ct := rr.Header().Get("content-type"); ct != tc.expectedType {
+				t.Errorf("handler returned wrong content-type: got %v want %v",
+					ct, tc.expectedType)
+			}
+
+			// check the response body is valid json
+			if bytes := rr.Body.Bytes(); !json.Valid(bytes) {
+				t.Errorf("json response did not validate! %s", bytes)
+			}
+
+			// check the response body is what we expect
+			if body := rr.Body.String(); body != tc.expectedBody {
+				t.Errorf("handler returned unexpected body: got %v want %v",
+					body, tc.expectedBody)
+			}
 		})
 	}
 }
@@ -190,21 +179,7 @@ func BenchmarkHTTPRequest(b *testing.B) {
 	db := newTestDB(b)
 	defer db.Close()
 
-	handler := NewHTTPHandler(db).DisableCache()
-	req, _ := http.NewRequest(http.MethodGet, testIPv4Path1, nil)
-	rr := httptest.NewRecorder()
-
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		handler.ServeHTTP(rr, req)
-	}
-}
-
-func BenchmarkHTTPRequestWithCache(b *testing.B) {
-	db := newTestDB(b)
-	defer db.Close()
-
-	handler := NewHTTPHandler(db).EnableCache()
+	handler := NewHTTPHandler(db)
 	req, _ := http.NewRequest(http.MethodGet, testIPv4Path1, nil)
 	rr := httptest.NewRecorder()
 
@@ -218,23 +193,7 @@ func BenchmarkHTTPRequestPar(b *testing.B) {
 	db := newTestDB(b)
 	defer db.Close()
 
-	handler := NewHTTPHandler(db).DisableCache()
-
-	b.RunParallel(func(pb *testing.PB) {
-		req, _ := http.NewRequest(http.MethodGet, testIPv4Path1, nil)
-		rr := httptest.NewRecorder()
-		for pb.Next() {
-			handler.ServeHTTP(rr, req)
-		}
-	})
-}
-
-func BenchmarkHTTPRequestParWithCache(b *testing.B) {
-	db := newTestDB(b)
-	defer db.Close()
-
-	handler := NewHTTPHandler(db).EnableCache()
-
+	handler := NewHTTPHandler(db)
 	b.RunParallel(func(pb *testing.PB) {
 		req, _ := http.NewRequest(http.MethodGet, testIPv4Path1, nil)
 		rr := httptest.NewRecorder()
