@@ -11,10 +11,10 @@ import (
 )
 
 func main() {
-	var dbPath = flag.String("db", "data/GeoLite2-City.mmdb", "Path of MaxMind GeoIP2/GeoLite2 database")
-	var originPolicy = flag.String("origin", tinygeoip.DefaultOriginPolicy, `Value for 'Access-Control-Allow-Origin' header, set to "" to disable.`)
+	var dbPath = flag.String("db", "data/GeoLite2-City.mmdb", "Path for MaxMind database file")
+	var originPolicy = flag.String("origin", tinygeoip.DefaultOriginPolicy, `'Access-Control-Allow-Origin' header, empty disables`)
 	var port = flag.Int("port", 9000, "Port to listen for connections on")
-	var threads = flag.Int("threads", runtime.NumCPU(), "Number of threads to use, otherwise number of detected cores")
+	var threads = flag.Int("threads", runtime.NumCPU(), "Number of threads to use, otherwise number of CPUs")
 	// var verbose = flag.Bool("verbose", false, "log all requests")
 
 	flag.Parse()
