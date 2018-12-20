@@ -35,6 +35,9 @@ $(REALDATA_PATH):
 	mkdir -p $(REALDATA_DIR)
 	curl $(REALDATA_URI) | tar -xzv --strip-components=1 -C $(REALDATA_DIR)
 
+image:
+	docker build -t mrothy/tinygeoip .
+
 clobber:
 	rm -rf $(BINDIR)
 	rm -rf $(REALDATA_DIR)
