@@ -23,10 +23,11 @@ func TestFasterJSON(t *testing.T) {
 	for _, tc := range testCases {
 		res := tc.expected
 		expected, _ := json.Marshal(res)
-		actual := *res.FasterJSON()
-		if !bytes.Equal(expected, actual) {
-			t.Errorf("JSON mismatch! want %s, got %s", expected, actual)
+		actual := res.FasterJSON()
+		if !bytes.Equal(expected, *actual) {
+			t.Errorf("JSON mismatch! want %s, got %s", expected, *actual)
 		}
+		res.PoolReturn(actual)
 	}
 }
 
