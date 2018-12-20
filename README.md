@@ -9,6 +9,26 @@ TODO: Description
 
 TODO: CLI options here
 
+```json5
+// $ curl http://${SERVER_IP}/89.160.20.112
+{"country":{"iso_code":"SE"},"location":{"latitude":59.4333,"longitude":18.05,"accuracy_radius":200}}
+```
+
+Reformatted for ease of human reading:
+
+```json5
+{
+  "country": {
+    "iso_code": "SE"        // ISO 3166-1 country code
+  },
+  "location": {
+    "latitude": 59.4333,    // Approximate latitude of IP
+    "longitude": 18.05,     // Approximate longitude of IP
+    "accuracy_radius": 200  // Accuracy radius, in km, for the lat/long
+  }
+}
+```
+
 TODO: note perf characteristics here
 
 ## Library
