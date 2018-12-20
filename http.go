@@ -55,7 +55,7 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// nice error message when missing data
 	if ipText == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		const parseIPError = `{"error": "missing IP query parameter, try ?ip=foo"}`
+		const parseIPError = `{"error": "missing IP query in path, try /192.168.1.1"}`
 		w.Write([]byte(parseIPError))
 		return
 	}

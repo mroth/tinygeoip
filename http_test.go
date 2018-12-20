@@ -80,17 +80,15 @@ func TestHTTPLookup(t *testing.T) {
 			path:            "",
 			expectedStatus:  http.StatusBadRequest,
 			expectedType:    "application/json",
-			expectedBody:    `{"error": "missing IP query parameter, try ?ip=foo"}`,
+			expectedBody:    `{"error": "missing IP query in path, try /192.168.1.1"}`,
 			hasLastModified: false,
 		},
 		{
-			name:           "IP empty",
-			path:           "/",
-			expectedStatus: http.StatusBadRequest,
-			expectedType:   "application/json",
-			expectedBody:   `{"error": "missing IP query parameter, try ?ip=foo"}`,
-			// TODO: possibly better to do the below? hard with default req parse methods
-			// expectedBody:   `{"error": "could not parse IP address"}`,
+			name:            "IP empty",
+			path:            "/",
+			expectedStatus:  http.StatusBadRequest,
+			expectedType:    "application/json",
+			expectedBody:    `{"error": "missing IP query in path, try /192.168.1.1"}`,
 			hasLastModified: false,
 		},
 		{
