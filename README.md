@@ -24,7 +24,7 @@ Reformatted for ease of human reading:
   "location": {
     "latitude": 59.4333,    // Approximate latitude of IP
     "longitude": 18.05,     // Approximate longitude of IP
-    "accuracy_radius": 200  // Accuracy radius, in km, for the lat/long
+    "accuracy_radius": 200  // Accuracy radius, in km, for the location
   }
 }
 ```
@@ -49,15 +49,6 @@ For more information, see the GoDocs.
 * Modules && Docker build updated.
 
 https://dev.maxmind.com/geoip/geoipupdate/
-
-Names?
-- geominder
-- geoipfeather
-- geoipnano
-- nanogeoip
-- picogeoip
-- geoipico*
-- tinygeoip
 
 
 ## Performance
