@@ -4,7 +4,7 @@ REALDATA_PATH = $(REALDATA_DIR)/GeoLite2-City.mmdb
 PACKAGES = .
 BINDIR = bin
 
-.PHONY: test bench benchreal realdata clobber
+.PHONY: test bench benchreal realdata image clobber
 
 default: $(BINDIR)/tinygeoip
 
