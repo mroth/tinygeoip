@@ -14,7 +14,7 @@ func main() {
 	var originPolicy = flag.String("origin", tinygeoip.DefaultOriginPolicy, `'Access-Control-Allow-Origin' header, empty disables`)
 	var addr = flag.String("addr", ":9000", "Address to listen for connections on")
 	var threads = flag.Int("threads", runtime.NumCPU(), "Number of threads to use, otherwise number of CPUs")
-	// var verbose = flag.Bool("verbose", false, "log all requests")
+	var verbose = flag.Bool("verbose", false, "Log all requests")
 
 	flag.Parse()
 	runtime.GOMAXPROCS(*threads)
@@ -31,12 +31,25 @@ func main() {
 
 	lh := tinygeoip.NewHTTPHandler(db).SetOriginPolicy(*originPolicy)
 
-	// Logging of connections is disabled
-	// Logging of connections is enabled, this may severely impact performance under extremely high utilization
+	if *verbose {
+		log.Println("Logging of requests is enabled, this may severely impact performance under high utilization!")
+		http.Handle("/", trivialLogger(lh))
+	} else {
+		http.Handle("/", lh)
+	}
 
-	http.Handle("/", lh)
 	log.Println("Listening for connections on", *addr)
 	if err := http.ListenAndServe(*addr, nil); err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
+}
+
+// trivial logging middleware, you would never actually want to use this in
+// production -- this is provided mostly as an example of middleware and for
+// debugging purposes
+func trivialLogger(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+		log.Println(r.RemoteAddr, r.RequestURI)
+	})
 }
