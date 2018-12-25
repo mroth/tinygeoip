@@ -1,20 +1,30 @@
-# tinygeoip WIP
+# tinygeoip :dragon:
 
-A small and fast HTTP based microservice (as well as native Go library)
-for extremely minimal geoip location lookups.
+[![Build Status](https://travis-ci.org/mroth/tinygeoip.svg?branch=master)](https://travis-ci.org/mroth/tinygeoip)
+[![Go Report Card](https://goreportcard.com/badge/github.com/mroth/tinygeoip)](https://goreportcard.com/report/github.com/mroth/tinygeoip)
+[![GoDoc](https://godoc.org/github.com/mroth/tinygeoip?status.svg)](https://godoc.org/github.com/mroth/tinygeoip)
 
-## CLI Tool / Microservice
+A small and fast HTTP based microservice for extremely minimal geoip location
+lookups.
 
-TODO: Description
+It bundles into a ~5MB docker image that can serve over ~150K reqs/sec (uncached).
 
-TODO: CLI options here
+## API
+
+The API is intentionally extremely minimal and is designed to return only the
+absolutely most frequently needed geographic metadata for IP lookups.
+
+The API has only one endpoint `/`, and you just put the IP address (IPv4 and
+IPv6 both accepted) directly in the URI path.
+
+Example:
 
 ```json5
 // $ curl http://${SERVER_IP}/89.160.20.112
 {"country":{"iso_code":"SE"},"location":{"latitude":59.4333,"longitude":18.05,"accuracy_radius":200}}
 ```
 
-Reformatted for ease of human reading:
+Response reformatted for ease of human reading:
 
 ```json5
 {
@@ -29,55 +39,101 @@ Reformatted for ease of human reading:
 }
 ```
 
-TODO: note perf characteristics here
-
-## Library
-
-A Go library is provided for utilizing within native projects. Additionally, a
-standard `http.Handler` interface is provided for bundling the HTTP microservice into
-existing http Mux setups.
-
-For more information, see the GoDocs.
-
-## TODO
-
-* Custom struct lookup on db to get a very minimal payload. (√ partially complete, need to finalize API)
-* Tests and benchmarks. √
-* [PERF] Even more performant caching solution (allegro/bigcache).
-* [PERF] Utilize ffjson for json serialization.
-* [PERF] investigate fasthttp with sync.Pool.
-* Modules && Docker build updated.
-
-https://dev.maxmind.com/geoip/geoipupdate/
-
-
 ## Performance
 
-Comparison:
-https://www.npmjs.com/package/geoip-lite
+This package _generally_ favors understandability of code over performance
+optimizations. That said, it is written in a way to be fairly highly performant,
+and combined with it's minimal nature, it can trivially handle a sustained
+150,000 requests/second on my laptop. This actually makes it faster than any
+other similar off-the-shelf packages I tested in a quick informal survey.
+<small>_(Note: my benchmarking was intentionally not robust, and I'm certainly not
+trying to start any microbenchmark wars here.)_</small>
 
-Says 20microsecs for lookup, 6microsec for ipv4.
+If you really want to break some speed limits, you can help out with the current
+[experimental Rust version of this project built on Hyper][nanogeoip], which is
+currently approaching 1M reqs/sec on the same hardware.
 
-https://allegro.tech/2016/03/writing-fast-cache-service-in-go.html
+## Installing and running the server
+
+Compile with standard Go toolchain or download a binary for your platform from
+the [Releases] page.
+
+```
+Usage of tinygeoip:
+  -addr string
+        Address to listen for connections on (default ":9000")
+  -db string
+        Path for MaxMind database file (default "data/GeoLite2-City.mmdb")
+  -origin string
+        'Access-Control-Allow-Origin' header, empty disables (default "*")
+  -threads int
+        Number of threads to use, otherwise number of CPUs (default 8)
+  -verbose
+        Log all requests
+```
+
+[Releases]: https://github.com/mroth/tinygeoip/releases
+
+## Go library
+
+A Go library is provided for utilizing within native projects. A standard
+`http.Handler` interface is utilized for compatibility within standard Go HTTP
+middleware setups. Alternately, if you are doing the lookups within your
+existing application and not over the HTTP microservice, you can get an average
+lookup result in approximately 1.2 microseconds.
+
+For more information, see the [GoDocs].
+
+[GoDocs]: https://godoc.org/github.com/mroth/tinygeoip
 
 
-## Docker Microservice Container
+## Docker Image
 
-TODO
+A docker image is automatically built from all tagged releases.
 
-## Other projects
+To utilize it, be sure to mount your MaxMindDB database as a volume so that the
+running container can access it.
 
-- [`klauspost/geoip-service`][prj1] is where some of the initial
-  structural inspiration for this was drawn. The primary difference has been in
-  having a significantly more minimal API (with tests), and performance tuning.
+_[TODO: provide an example for folks not so familiar with Docker.]_
 
+## Stability
 
-- [`bluesmoon/node-geoip`][prj2] 
-Uses "somewhere between 512MB and 2GB" of memory.
+:construction: The current API is considered _unstable_. This is just being
+released and I'd like some feedback to make any potential changes before tagging
+a `v1.0` which will maintain API stability. 
+
+In other words, comments and feedback wanted!
+
+## Related projects
+
+- [`klauspost/geoip-service`][prj1] is where some of the initial inspiration for
+  this was drawn. The primary difference is here we have a significantly more
+  minimal API (with integration tests), which removes the need for caching or
+  external JSON serialization libraries (things we initially had here but
+  removed as the perf tradeoff was not benchmarking as significant versus the
+  added complexity). I also wanted the API payload to be much smaller for client
+  efficiency.
+
+- [`bluesmoon/node-geoip`][prj2] Seems well received, but uses "somewhere between 512MB and 2GB" of memory, which made it highly unsuitable for my purposes.
+
+- [`mroth/nanogeoip`][nanogeoip] An experimental in-progress port of this project to
+  Rust for fun, with an aim to see how just fast it can get. (Answer: so far,
+  pretty darn fast!)
 
 [prj1]: https://github.com/klauspost/geoip-service
 [prj2]: https://github.com/bluesmoon/node-geoip
+[nanogeoip]: https://github.com/mroth/nanogeoip
 
 ## License
 
-TBD
+Software license TBD upon v1.0 release.
+
+The chosen license should also contain an additional clause similar to:
+
+> "This software is not licensed for usage in any application related to censorship or preventing access to information based on geographic region. Legal action will be pursued against any entity who uses this software to knowingly violate this provision."
+
+## Code of Conduct
+
+Please note that this project is released with a [Contributor Code of
+Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to
+abide by its terms.
