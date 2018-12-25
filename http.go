@@ -9,11 +9,11 @@ import (
 	"time"
 )
 
-// DefaultOriginPolicy is the default for `Access-Control-Allow-Origin` header
+// DefaultOriginPolicy is the default for `Access-Control-Allow-Origin` header.
 const DefaultOriginPolicy = "*"
 
 // HTTPHandler implements a standard http.Handler interface for accessing
-// a LookupDB, and provides in-memory caching for results.
+// a LookupDB.
 type HTTPHandler struct {
 	// Handle to the LookupDB used for queries.
 	DB *LookupDB
@@ -23,7 +23,7 @@ type HTTPHandler struct {
 	OriginPolicy string
 }
 
-// NewHTTPHandler creates a HTTPHandler for requests againt the given LookupDB
+// NewHTTPHandler creates a HTTPHandler for requests againt the given LookupDB.
 //
 // By default caching is enabled, and DefaultOriginPolicy is applied.
 func NewHTTPHandler(db *LookupDB) *HTTPHandler {
@@ -33,7 +33,7 @@ func NewHTTPHandler(db *LookupDB) *HTTPHandler {
 	}
 }
 
-// SetOriginPolicy sets value for `Access-Control-Allow-Origin` header
+// SetOriginPolicy sets value for `Access-Control-Allow-Origin` header.
 //
 // Returns pointer to the HTTPHandler to enable chaining in builder pattern.
 func (hh *HTTPHandler) SetOriginPolicy(origins string) *HTTPHandler {
@@ -41,7 +41,7 @@ func (hh *HTTPHandler) SetOriginPolicy(origins string) *HTTPHandler {
 	return hh
 }
 
-// ServeHTTP implements the http.Handler interface
+// ServeHTTP implements the standard http.Handler interface.
 func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Set headers
 	if hh.OriginPolicy != "" {

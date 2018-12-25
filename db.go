@@ -10,9 +10,6 @@ import (
 
 // LookupDB essentially wraps a `maxminddb.Reader` to query for and retrieve our
 // minimal data structure. By querying for less, lookups are faster.
-//
-// Additionally, this allows us to abstract and separate the DB lookup logic from
-// the HTTP handlers.
 type LookupDB struct {
 	reader *maxminddb.Reader
 }
@@ -30,7 +27,7 @@ func NewLookupDB(dbPath string) (*LookupDB, error) {
 
 // Close closes the underlying database and returns resources to the system.
 //
-// For current implemetnation, see maxminddb.Reader.Close()
+// For current implementation, see maxminddb.Reader.Close().
 func (l *LookupDB) Close() error {
 	return l.reader.Close()
 }
@@ -43,14 +40,11 @@ func (l *LookupDB) Lookup(ip net.IP) (*LookupResult, error) {
 	return &r, err
 }
 
-// FastLookup is a version of Lookup() that avoids memory allocations by taking
-// a pointer to a pre-allocated LookupResult to decode into.
+// FastLookup is a version of Lookup that avoids any memory allocations by
+// taking a pointer to a pre-allocated LookupResult to decode into.
 //
 // You probably don't need to use this unless you are tuning for ludicrous speed
 // in combination with a sync.Pool, etc.
-//
-// TODO: benchmark this in more detail to see if saving that one allocation
-// really makes a big enough difference, if not consider removal.
 func (l *LookupDB) FastLookup(ip net.IP, r *LookupResult) error {
 	return l.lookup(ip, r)
 }
@@ -72,12 +66,12 @@ func (l *LookupDB) lookup(ip net.IP, r *LookupResult) error {
 	return l.reader.Decode(offset, r)
 }
 
-// NodeCount returns the number of nodes from the underlying database metadata
+// NodeCount returns the number of nodes from the underlying database metadata.
 func (l *LookupDB) NodeCount() uint {
 	return l.reader.Metadata.NodeCount
 }
 
-// BuildTime returns the timestamp that the underlying database was built at
+// BuildTime returns the timestamp for when the underlying database was built.
 func (l *LookupDB) BuildTime() time.Time {
 	return time.Unix(int64(l.reader.Metadata.BuildEpoch), 0)
 }

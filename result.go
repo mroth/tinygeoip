@@ -1,3 +1,5 @@
+// Package tinygeoip implements a small and fast HTTP based microservice for
+// extremely minimal geoip location lookups.
 package tinygeoip
 
 import (
@@ -111,9 +113,9 @@ var dbFastJSONResultsPool = sync.Pool{
 	},
 }
 
-// PoolReturn returns a byteslice to the backing pool for potential re-use.PoolReturn
+// PoolReturn returns a byteslice to the backing pool for potential re-use.
 //
-// Be sure you are done with it!
+// Be sure you are really done with it before returning!
 func (lr *LookupResult) PoolReturn(b *[]byte) {
 	dbFastJSONResultsPool.Put(b)
 }

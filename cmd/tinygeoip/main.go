@@ -1,3 +1,4 @@
+// The command line binary application for the tinygeoip API microservice.
 package main
 
 import (
