@@ -23,7 +23,7 @@ type HTTPHandler struct {
 	OriginPolicy string
 }
 
-// NewHTTPHandler creates a HTTPHandler for requests againt the given LookupDB.
+// NewHTTPHandler creates a HTTPHandler for requests against the given LookupDB.
 //
 // By default caching is enabled, and DefaultOriginPolicy is applied.
 func NewHTTPHandler(db *LookupDB) *HTTPHandler {
@@ -77,9 +77,9 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// rerturn results as JSON
+	// return results as JSON
 	//
-	// (yes, we're swallowing a potential marshall error here, but we already
+	// (yes, we're swallowing a potential marshal error here, but we already
 	// know loc should not be nil since we checked for err on the previous case)
 	b, _ := json.Marshal(loc)
 	w.Header().Set("Last-Modified", serverStartTime)

@@ -50,13 +50,13 @@ type location struct {
 // json.Marshal is already very fast for a small struct like this. In fact,
 // using the popular code generation tools ffjson and easyjson, I was unable to
 // get them to be significantly more performant for this data struct, and in
-// most cases they were actualy slower (lesson: always measure!).
+// most cases they were actually slower (lesson: always measure!).
 //
 // However, by doing this hand-made "artisanal" encode, the end result is about
 // 2.5x faster than json/ffjson/easyjson.
 //
 // Note that implementing MarshalJSON with this does not get the same results,
-// since you still lose speed to the inital reflection on interface{} (quite a
+// since you still lose speed to the initial reflection on interface{} (quite a
 // bit more than I would have expected!).
 //
 // You probably don't need this. I may end up deleting it for maintainability.

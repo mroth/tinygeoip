@@ -132,7 +132,7 @@ func BenchmarkDBFastLookup(b *testing.B) {
 	}
 }
 
-// newTestDB calls NewLookupDB with the default test db (which can be overriden
+// newTestDB calls NewLookupDB with the default test db (which can be overridden
 // in flags), or causes the originating test/benchmark to fail if it errors.
 //
 // literally the only reason this exists it to save us the err != nil check 3
