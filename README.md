@@ -1,6 +1,6 @@
 # tinygeoip :dragon:
 
-[![Build Status](https://travis-ci.org/mroth/tinygeoip.svg?branch=master)](https://travis-ci.org/mroth/tinygeoip)
+[![Build Status](https://travis-ci.com/mroth/tinygeoip.svg?branch=master)](https://travis-ci.com/mroth/tinygeoip)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mroth/tinygeoip)](https://goreportcard.com/report/github.com/mroth/tinygeoip)
 [![GoDoc](https://godoc.org/github.com/mroth/tinygeoip?status.svg)](https://godoc.org/github.com/mroth/tinygeoip)
 
