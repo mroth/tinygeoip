@@ -44,7 +44,7 @@ Response reformatted for ease of human reading:
 This package _generally_ favors understandability of code over performance
 optimizations. That said, it is written in a way to be fairly highly performant,
 and combined with it's minimal nature, it can trivially handle a sustained
-150,000 requests/second on my laptop. This actually makes it faster than any
+150,000 requests/second on my workstation. This actually makes it faster than any
 other similar off-the-shelf packages I tested in a quick informal survey.
 <small>_(Note: my benchmarking was intentionally not robust, and I'm certainly not
 trying to start any microbenchmark wars here.)_</small>
@@ -72,7 +72,11 @@ Usage of tinygeoip:
         Log all requests
 ```
 
+You will need to provide a city-level precision GeoIP2 database file. Free
+GeoLite2 versions are available for download from [MaxMindDB].
+
 [Releases]: https://github.com/mroth/tinygeoip/releases
+[MaxMindDB]: https://dev.maxmind.com/geoip/geoip2/geolite2/
 
 ## Go library
 
