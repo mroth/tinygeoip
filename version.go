@@ -3,7 +3,7 @@
 package tinygeoip
 
 // Version of this package, adheres to semantic versioning.
-const Version = "0.x.x"
+const Version = "0.1.0"
 
 // When releasing a new version, increment the version string above. Version
 // numbers should always adhere to semantic versioning.
