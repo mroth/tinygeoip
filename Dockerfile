@@ -15,9 +15,8 @@ COPY cmd cmd
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
 	go build -ldflags "-s -w" ./cmd/tinygeoip
 
-# FROM alpine
-# RUN apk --no-cache add ca-certificates
-# ^^ I don't believe ca-certificates are needed if not making outgoing conns?
-FROM scratch
+# actual image is just distroless static with the binary
+# https://github.com/GoogleContainerTools/distroless/tree/master/base
+FROM gcr.io/distroless/static
 COPY --from=builder /home/tinygeoip/tinygeoip /tinygeoip
-ENTRYPOINT [ "./tinygeoip" ]
+ENTRYPOINT [ "/tinygeoip" ]
