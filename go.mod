@@ -2,4 +2,4 @@ module github.com/mroth/tinygeoip
 
 go 1.12
 
-require github.com/oschwald/maxminddb-golang v1.6.0
+require github.com/oschwald/maxminddb-golang v1.9.0
