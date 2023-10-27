@@ -6,8 +6,6 @@ import (
 	"testing"
 )
 
-var jsonTestCase = testCases[2].expected
-
 func TestFastJSON(t *testing.T) {
 	for _, tc := range testCases {
 		res := tc.expected
