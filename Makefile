@@ -43,7 +43,8 @@ benchreal: realdata
 	go test -run=Bench -bench=. -benchmem $(PACKAGES) -args -db=$(REALDATA_PATH)
 
 realdata: $(REALDATA_PATH)
-$(REALDATA_PATH): check-license
+$(REALDATA_PATH):
+	$(MAKE) check-license
 	mkdir -p $(REALDATA_DIR)
 	curl "$(REALDATA_URI)" | tar -xzv --strip-components=1 -C $(REALDATA_DIR)
 
