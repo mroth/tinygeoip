@@ -1,8 +1,8 @@
 # tinygeoip :dragon:
 
-[![Build Status](https://travis-ci.com/mroth/tinygeoip.svg?branch=master)](https://travis-ci.com/mroth/tinygeoip)
+[![Build Status](https://github.com/mroth/tinygeoip/actions/workflows/build.yml/badge.svg)](https://github.com/mroth/tinygeoip/actions/workflows/build.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mroth/tinygeoip)](https://goreportcard.com/report/github.com/mroth/tinygeoip)
-[![GoDoc](https://godoc.org/github.com/mroth/tinygeoip?status.svg)](https://godoc.org/github.com/mroth/tinygeoip)
+[![Go Reference](https://pkg.go.dev/badge/github.com/mroth/tinygeoip.svg)](https://pkg.go.dev/github.com/mroth/tinygeoip)
 
 A small and fast HTTP based microservice for extremely minimal geoip location
 lookups.
@@ -48,10 +48,6 @@ and combined with it's minimal nature, it can trivially handle a sustained
 other similar off-the-shelf packages I tested in a quick informal survey.
 <small>_(Note: my benchmarking was intentionally not robust, and I'm certainly not
 trying to start any microbenchmark wars here.)_</small>
-
-If you really want to break some speed limits, you can help out with the current
-[experimental Rust version of this project built on Hyper][nanogeoip], which is
-currently approaching 1M reqs/sec on the same hardware.
 
 ## Installing and running the server
 
@@ -135,9 +131,3 @@ Software license TBD upon v1.0 release.
 The chosen license should also contain an additional clause similar to:
 
 > "This software is not licensed for usage in any application related to censorship or preventing access to information based on geographic region. Legal action will be pursued against any entity who uses this software to knowingly violate this provision."
-
-## Code of Conduct
-
-Please note that this project is released with a [Contributor Code of
-Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to
-abide by its terms.
