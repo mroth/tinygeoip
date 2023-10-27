@@ -18,7 +18,6 @@ func main() {
 	var verbose = flag.Bool("verbose", false, "Log all requests")
 
 	flag.Parse()
-	log.Printf("tinygeoip %v\n", tinygeoip.Version)
 	runtime.GOMAXPROCS(*threads)
 
 	db, err := tinygeoip.NewLookupDB(*dbPath)
