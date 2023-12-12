@@ -7,7 +7,8 @@
 A small and fast HTTP based microservice for extremely minimal geoip location
 lookups.
 
-It bundles into a ~5MB docker image that can serve over ~150K reqs/sec (uncached).
+It bundles into a ~5MB docker image that can serve over ~250K reqs/sec
+(uncached) from my laptop.
 
 ## API
 
@@ -116,13 +117,8 @@ In other words, comments and feedback wanted!
 
 - [`bluesmoon/node-geoip`][prj2] Seems well received, but uses "somewhere between 512MB and 2GB" of memory, which made it highly unsuitable for my purposes.
 
-- [`mroth/nanogeoip`][nanogeoip] An experimental in-progress port of this project to
-  Rust for fun, with an aim to see how just fast it can get. (Answer: so far,
-  pretty darn fast!)
-
 [prj1]: https://github.com/klauspost/geoip-service
 [prj2]: https://github.com/bluesmoon/node-geoip
-[nanogeoip]: https://github.com/mroth/nanogeoip
 
 ## License
 
