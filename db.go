@@ -55,6 +55,9 @@ func (l *LookupDB) FastLookup(ip net.IP, r *LookupResult) error {
 // to work around this, we don't use their Lookup(), but rather check
 // LookupOffset() first, and throw our own error if nothing was found, before
 // using the offset for a manual Decode().
+//
+// TODO: this issue has now been resolved in recent versions of maxminddb-golang,
+// so we can deprecate this and move to using the new LookupNetwork().
 func (l *LookupDB) lookup(ip net.IP, r *LookupResult) error {
 	offset, err := l.reader.LookupOffset(ip)
 	if err != nil {
