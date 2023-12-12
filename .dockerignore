@@ -1,4 +1,6 @@
 .git*
+.env
 bin
 data
 dist
+benches
