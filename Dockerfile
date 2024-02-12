@@ -1,6 +1,6 @@
 FROM --platform=$BUILDPLATFORM tonistiigi/xx AS xx
 
-FROM --platform=$BUILDPLATFORM golang:1.21-alpine AS xbuild
+FROM --platform=$BUILDPLATFORM golang:1.22-alpine AS xbuild
 WORKDIR /src
 COPY --from=xx / /
 ARG TARGETPLATFORM
