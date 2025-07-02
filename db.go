@@ -36,29 +36,22 @@ func (l *LookupDB) Close() error {
 // not be obtained for some reason.
 func (l *LookupDB) Lookup(ip net.IP) (*LookupResult, error) {
 	var r LookupResult
-	err := l.lookup(ip, &r)
+	err := l.LookupInto(ip, &r)
 	return &r, err
 }
 
-// FastLookup is a version of Lookup that avoids any memory allocations by
-// taking a pointer to a pre-allocated LookupResult to decode into.
-//
-// You probably don't need to use this unless you are tuning for ludicrous speed
-// in combination with a sync.Pool, etc.
-func (l *LookupDB) FastLookup(ip net.IP, r *LookupResult) error {
-	return l.lookup(ip, r)
-}
-
-// oschwald/maxminddb-golang does not generate an error on a failed lookup,
-// see: https://github.com/oschwald/maxminddb-golang/issues/41
-//
-// to work around this, we don't use their Lookup(), but rather check
-// LookupOffset() first, and throw our own error if nothing was found, before
-// using the offset for a manual Decode().
-//
-// TODO: this issue has now been resolved in recent versions of maxminddb-golang,
-// so we can deprecate this and move to using the new LookupNetwork().
-func (l *LookupDB) lookup(ip net.IP, r *LookupResult) error {
+// LookupInto is a version of Lookup that avoids any memory allocations by
+// taking a pointer to a pre-allocated [LookupResult] to decode into.
+func (l *LookupDB) LookupInto(ip net.IP, r *LookupResult) error {
+	// oschwald/maxminddb-golang does not generate an error on a failed lookup,
+	// see: https://github.com/oschwald/maxminddb-golang/issues/41
+	//
+	// to work around this, we don't use their Lookup(), but rather check
+	// LookupOffset() first, and throw our own error if nothing was found, before
+	// using the offset for a manual Decode().
+	//
+	// TODO: this issue has now been resolved in recent versions of maxminddb-golang,
+	// so we can deprecate this and move to using the new LookupNetwork().
 	offset, err := l.reader.LookupOffset(ip)
 	if err != nil {
 		return err

@@ -83,7 +83,12 @@ lookup result in approximately 1.2 microseconds.
 
 For more information, see the [GoDocs].
 
-[GoDocs]: https://godoc.org/github.com/mroth/tinygeoip
+> [!TIP]
+> This is a pre v1.0 package that is exported for convenience but is primarily
+> consumed by end-users via the binary releases, therefore there may be breaking
+> API changes to the library prior to any v1.0 stable release.
+
+[GoDocs]: https://pkg.go.dev/github.com/mroth/tinygeoip
 
 
 ## Docker Image

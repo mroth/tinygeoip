@@ -93,7 +93,7 @@ func TestDBFastLookup(t *testing.T) {
 
 	for _, tc := range testCases {
 		res := pool.Get().(*LookupResult)
-		err := db.FastLookup(tc.ip, res)
+		err := db.LookupInto(tc.ip, res)
 		if err != nil {
 			t.Error(err)
 		}
@@ -125,7 +125,7 @@ func BenchmarkDBFastLookup(b *testing.B) {
 
 	for b.Loop() {
 		res := pool.Get().(*LookupResult)
-		db.FastLookup(benchIP, res)
+		db.LookupInto(benchIP, res)
 		pool.Put(res)
 	}
 }
