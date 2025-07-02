@@ -50,10 +50,7 @@ other similar off-the-shelf packages I tested in a quick informal survey.
 <small>_(Note: my benchmarking was intentionally not robust, and I'm certainly not
 trying to start any microbenchmark wars here.)_</small>
 
-## Installing and running the server
-
-Compile with standard Go toolchain or download a binary for your platform from
-the [Releases] page.
+## Running the server
 
 ```
 Usage of tinygeoip:
@@ -70,7 +67,6 @@ Usage of tinygeoip:
 You will need to provide a city-level precision GeoIP2 database file. Free
 GeoLite2 versions are available for download from [MaxMindDB].
 
-[Releases]: https://github.com/mroth/tinygeoip/releases
 [MaxMindDB]: https://dev.maxmind.com/geoip/geoip2/geolite2/
 
 ## Go library
@@ -125,8 +121,8 @@ In other words, comments and feedback wanted!
 
 ## License
 
-Software license TBD upon v1.0 release.
+Software license available upon request.
 
-The chosen license should also contain an additional clause similar to:
+All licenses will contain an additional clause similar to:
 
 > "This software is not licensed for usage in any application related to censorship or preventing access to information based on geographic region. Legal action will be pursued against any entity who uses this software to knowingly violate this provision."
