@@ -43,23 +43,11 @@ func (l *LookupDB) Lookup(ip net.IP) (*LookupResult, error) {
 // LookupInto is a version of Lookup that avoids any memory allocations by
 // taking a pointer to a pre-allocated [LookupResult] to decode into.
 func (l *LookupDB) LookupInto(ip net.IP, r *LookupResult) error {
-	// oschwald/maxminddb-golang does not generate an error on a failed lookup,
-	// see: https://github.com/oschwald/maxminddb-golang/issues/41
-	//
-	// to work around this, we don't use their Lookup(), but rather check
-	// LookupOffset() first, and throw our own error if nothing was found, before
-	// using the offset for a manual Decode().
-	//
-	// TODO: this issue has now been resolved in recent versions of maxminddb-golang,
-	// so we can deprecate this and move to using the new LookupNetwork().
-	offset, err := l.reader.LookupOffset(ip)
-	if err != nil {
-		return err
-	}
-	if offset == maxminddb.NotFound {
+	_, found, err := l.reader.LookupNetwork(ip, r)
+	if !found {
 		return fmt.Errorf("no match for %v found in database", ip)
 	}
-	return l.reader.Decode(offset, r)
+	return err
 }
 
 // NodeCount returns the number of nodes from the underlying database metadata.
