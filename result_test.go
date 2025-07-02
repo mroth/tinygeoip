@@ -33,17 +33,17 @@ func BenchmarkDBResultJSON(b *testing.B) {
 	res := testCases[2].expected
 
 	b.Run("Marshal", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			json.Marshal(res)
 		}
 	})
 	b.Run("FastJSON", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			res.FastJSON()
 		}
 	})
 	b.Run("FasterJSON", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for b.Loop() {
 			bs := res.FasterJSON()
 			res.PoolReturn(bs)
 		}

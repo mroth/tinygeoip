@@ -105,7 +105,7 @@ func (lr *LookupResult) FasterJSON() *[]byte {
 }
 
 var dbFastJSONResultsPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		bs := make([]byte, 0, 128)
 		return &bs
 	},

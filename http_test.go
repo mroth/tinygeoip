@@ -198,8 +198,7 @@ func BenchmarkHTTPRequest(b *testing.B) {
 	req, _ := http.NewRequest(http.MethodGet, testIPv4Path1, nil)
 	rr := httptest.NewRecorder()
 
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
+	for b.Loop() {
 		handler.ServeHTTP(rr, req)
 	}
 }

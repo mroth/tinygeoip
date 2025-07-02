@@ -86,7 +86,7 @@ func TestDBFastLookup(t *testing.T) {
 	defer db.Close()
 
 	pool := &sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			return new(LookupResult)
 		},
 	}
@@ -108,8 +108,7 @@ func BenchmarkDBLookup(b *testing.B) {
 	db := newTestDB(b)
 	defer db.Close()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		db.Lookup(benchIP)
 	}
 }
@@ -119,13 +118,12 @@ func BenchmarkDBFastLookup(b *testing.B) {
 	defer db.Close()
 
 	pool := &sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			return new(LookupResult)
 		},
 	}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		res := pool.Get().(*LookupResult)
 		db.FastLookup(benchIP, res)
 		pool.Put(res)

@@ -73,7 +73,7 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	loc, err := hh.DB.Lookup(ip)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf(`{"error": "%v"}`, err.Error())))
+		w.Write(fmt.Appendf(nil, `{"error": "%v"}`, err.Error()))
 		return
 	}
 
