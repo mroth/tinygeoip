@@ -43,11 +43,17 @@ func (l *LookupDB) Lookup(ip net.IP) (*LookupResult, error) {
 // LookupInto is a version of Lookup that avoids any memory allocations by
 // taking a pointer to a pre-allocated [LookupResult] to decode into.
 func (l *LookupDB) LookupInto(ip net.IP, r *LookupResult) error {
-	_, found, err := l.reader.LookupNetwork(ip, r)
-	if !found {
+	// To avoid memory allocations from LookupNetwork, we use LookupOffset first
+	// to see if a record is found, and throw our own error if nothing was
+	// found, before using the offset for a manual Decode.
+	offset, err := l.reader.LookupOffset(ip)
+	if err != nil {
+		return err
+	}
+	if offset == maxminddb.NotFound {
 		return fmt.Errorf("no match for %v found in database", ip)
 	}
-	return err
+	return l.reader.Decode(offset, r)
 }
 
 // NodeCount returns the number of nodes from the underlying database metadata.
