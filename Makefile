@@ -57,7 +57,13 @@ $(REALDATA_PATH):
 	  ghcr.io/maxmind/geoipupdate:v7.1
 
 image:
-	docker build -t mrothy/tinygeoip .
+	docker build -t ghcr.io/mroth/tinygeoip .
+
+serve-image: realdata
+	docker run --rm -it \
+		-v $(REALDATA_DIR):/data \
+		-p 9000:9000 \
+		ghcr.io/mroth/tinygeoip -db /data/GeoLite2-City.mmdb
 
 clobber:
 	rm -rf $(BINDIR)
