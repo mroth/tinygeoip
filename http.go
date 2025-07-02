@@ -78,12 +78,8 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// return results as JSON
-	//
-	// (yes, we're swallowing a potential marshal error here, but we already
-	// know loc should not be nil since we checked for err on the previous case)
-	b, _ := json.Marshal(loc)
 	w.Header().Set("Last-Modified", serverStartTime)
-	w.Write(b)
+	json.NewEncoder(w).Encode(loc)
 }
 
 // for the last-modified time to hint to HTTP caching of results, we just use
