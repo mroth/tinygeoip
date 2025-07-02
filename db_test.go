@@ -81,7 +81,7 @@ func TestDBLookup(t *testing.T) {
 	}
 }
 
-func TestDBFastLookup(t *testing.T) {
+func TestDBLookupInto(t *testing.T) {
 	db := newTestDB(t)
 	defer db.Close()
 
@@ -113,7 +113,7 @@ func BenchmarkDBLookup(b *testing.B) {
 	}
 }
 
-func BenchmarkDBFastLookup(b *testing.B) {
+func BenchmarkDBLookupInto(b *testing.B) {
 	db := newTestDB(b)
 	defer db.Close()
 
