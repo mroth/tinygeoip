@@ -63,8 +63,6 @@ Usage of tinygeoip:
         Path for MaxMind database file (default "data/GeoLite2-City.mmdb")
   -origin string
         'Access-Control-Allow-Origin' header, empty disables (default "*")
-  -threads int
-        Number of threads to use, otherwise number of CPUs (default 8)
   -verbose
         Log all requests
 ```
