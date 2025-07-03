@@ -132,12 +132,8 @@ func BenchmarkDBLookupInto(b *testing.B) {
 
 // newTestDB calls NewLookupDB with the default test db (which can be overridden
 // in flags), or causes the originating test/benchmark to fail if it errors.
-//
-// literally the only reason this exists it to save us the err != nil check 3
-// lines of boilerplate visual noise on every single test initialization.
-//
-// worth it? IMHO heck yes!
 func newTestDB(tb testing.TB) *LookupDB {
+	tb.Helper()
 	db, err := NewLookupDB(*dbPath)
 	if err != nil {
 		tb.Fatal(err)
