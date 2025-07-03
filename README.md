@@ -45,15 +45,9 @@ Response reformatted for ease of human reading:
 This package _generally_ favors understandability of code over performance
 optimizations. That said, it is written in a way to be fairly highly performant,
 and combined with it's minimal nature, it can trivially handle a sustained
-150,000 requests/second on my workstation. This actually makes it faster than any
-other similar off-the-shelf packages I tested in a quick informal survey.
-<small>_(Note: my benchmarking was intentionally not robust, and I'm certainly not
-trying to start any microbenchmark wars here.)_</small>
+150,000 requests/second on my workstation.
 
-## Installing and running the server
-
-Compile with standard Go toolchain or download a binary for your platform from
-the [Releases] page.
+## Running the server
 
 ```
 Usage of tinygeoip:
@@ -63,8 +57,6 @@ Usage of tinygeoip:
         Path for MaxMind database file (default "data/GeoLite2-City.mmdb")
   -origin string
         'Access-Control-Allow-Origin' header, empty disables (default "*")
-  -threads int
-        Number of threads to use, otherwise number of CPUs (default 8)
   -verbose
         Log all requests
 ```
@@ -72,7 +64,6 @@ Usage of tinygeoip:
 You will need to provide a city-level precision GeoIP2 database file. Free
 GeoLite2 versions are available for download from [MaxMindDB].
 
-[Releases]: https://github.com/mroth/tinygeoip/releases
 [MaxMindDB]: https://dev.maxmind.com/geoip/geoip2/geolite2/
 
 ## Go library
@@ -85,7 +76,12 @@ lookup result in approximately 1.2 microseconds.
 
 For more information, see the [GoDocs].
 
-[GoDocs]: https://godoc.org/github.com/mroth/tinygeoip
+> [!TIP]
+> This is a pre v1.0 package that is exported for convenience but is primarily
+> consumed by end-users via the binary releases, therefore there may be breaking
+> API changes to the library prior to any v1.0 stable release.
+
+[GoDocs]: https://pkg.go.dev/github.com/mroth/tinygeoip
 
 
 ## Docker Image
@@ -95,15 +91,6 @@ A docker image is automatically built from all tagged releases.
 To utilize it, be sure to mount your MaxMindDB database as a volume so that the
 running container can access it.
 
-_[TODO: provide an example for folks not so familiar with Docker.]_
-
-## Stability
-
-:construction: The current API is considered _unstable_. This is just being
-released and I'd like some feedback to make any potential changes before tagging
-a `v1.0` which will maintain API stability. 
-
-In other words, comments and feedback wanted!
 
 ## Related projects
 
@@ -115,15 +102,20 @@ In other words, comments and feedback wanted!
   added complexity). I also wanted the API payload to be much smaller for client
   efficiency.
 
-- [`bluesmoon/node-geoip`][prj2] Seems well received, but uses "somewhere between 512MB and 2GB" of memory, which made it highly unsuitable for my purposes.
+- [`bluesmoon/node-geoip`][prj2] Seems well received, but uses "somewhere
+  between 512MB and 2GB" of memory, which made it highly unsuitable for my
+  purposes.
 
 [prj1]: https://github.com/klauspost/geoip-service
 [prj2]: https://github.com/bluesmoon/node-geoip
 
 ## License
 
-Software license TBD upon v1.0 release.
+Software license available upon request.
 
-The chosen license should also contain an additional clause similar to:
+All licenses will contain an additional clause similar to:
 
-> "This software is not licensed for usage in any application related to censorship or preventing access to information based on geographic region. Legal action will be pursued against any entity who uses this software to knowingly violate this provision."
+> "This software is not licensed for usage in any application related to
+> censorship or preventing access to information based on geographic region.
+> Legal action will be pursued against any entity who uses this software to
+> knowingly violate this provision."

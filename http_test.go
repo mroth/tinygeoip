@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -149,7 +150,9 @@ func TestHTTPLookup(t *testing.T) {
 			}
 
 			// check the response body is what we expect
-			if body := rr.Body.String(); body != tc.expectedBody {
+			body := rr.Body.String()
+			body = strings.TrimSuffix(body, "\n")
+			if body != tc.expectedBody {
 				t.Errorf("handler returned unexpected body: got %v want %v",
 					body, tc.expectedBody)
 			}
@@ -198,8 +201,7 @@ func BenchmarkHTTPRequest(b *testing.B) {
 	req, _ := http.NewRequest(http.MethodGet, testIPv4Path1, nil)
 	rr := httptest.NewRecorder()
 
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
+	for b.Loop() {
 		handler.ServeHTTP(rr, req)
 	}
 }

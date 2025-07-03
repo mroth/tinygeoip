@@ -81,19 +81,19 @@ func TestDBLookup(t *testing.T) {
 	}
 }
 
-func TestDBFastLookup(t *testing.T) {
+func TestDBLookupInto(t *testing.T) {
 	db := newTestDB(t)
 	defer db.Close()
 
 	pool := &sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			return new(LookupResult)
 		},
 	}
 
 	for _, tc := range testCases {
 		res := pool.Get().(*LookupResult)
-		err := db.FastLookup(tc.ip, res)
+		err := db.LookupInto(tc.ip, res)
 		if err != nil {
 			t.Error(err)
 		}
@@ -108,38 +108,32 @@ func BenchmarkDBLookup(b *testing.B) {
 	db := newTestDB(b)
 	defer db.Close()
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		db.Lookup(benchIP)
 	}
 }
 
-func BenchmarkDBFastLookup(b *testing.B) {
+func BenchmarkDBLookupInto(b *testing.B) {
 	db := newTestDB(b)
 	defer db.Close()
 
 	pool := &sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			return new(LookupResult)
 		},
 	}
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		res := pool.Get().(*LookupResult)
-		db.FastLookup(benchIP, res)
+		db.LookupInto(benchIP, res)
 		pool.Put(res)
 	}
 }
 
 // newTestDB calls NewLookupDB with the default test db (which can be overridden
 // in flags), or causes the originating test/benchmark to fail if it errors.
-//
-// literally the only reason this exists it to save us the err != nil check 3
-// lines of boilerplate visual noise on every single test initialization.
-//
-// worth it? IMHO heck yes!
 func newTestDB(tb testing.TB) *LookupDB {
+	tb.Helper()
 	db, err := NewLookupDB(*dbPath)
 	if err != nil {
 		tb.Fatal(err)
