@@ -55,8 +55,7 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// nice error message when missing data
 	if ipText == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		const parseIPError = `{"error": "missing IP query in path, try /192.168.1.1"}`
-		w.Write([]byte(parseIPError))
+		w.Write(responseErrMissingIP)
 		return
 	}
 
@@ -64,8 +63,7 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ip := net.ParseIP(ipText)
 	if ip == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		const parseIPError = `{"error": "could not parse invalid IP address"}`
-		w.Write([]byte(parseIPError))
+		w.Write(responseErrInvalidIP)
 		return
 	}
 
@@ -81,6 +79,11 @@ func (hh *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Last-Modified", serverStartTime)
 	json.NewEncoder(w).Encode(loc)
 }
+
+var (
+	responseErrMissingIP = []byte(`{"error": "missing IP query in path, try /192.168.1.1"}`)
+	responseErrInvalidIP = []byte(`{"error": "could not parse invalid IP address"}`)
+)
 
 // for the last-modified time to hint to HTTP caching of results, we just use
 // program launch time, as the values will never change outside of that. (we
